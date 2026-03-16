@@ -1,6 +1,10 @@
 # Project-generated artifacts
 output/
 
+# Keep example output directories under skills trackable.
+!.github/skills/**/examples/**/output/
+!.github/skills/**/examples/**/output/**
+
 # Local machine configuration
 conf.txt
 
