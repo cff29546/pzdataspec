@@ -1,0 +1,27 @@
+# 195_type_index
+
+| Source type / method | Source location | KSY type / field | KSY file | Resolved | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `zombie.iso.IsoChunk` chunk-loading path | `output/decompiled/195/zombie/iso/IsoChunk.java` | `chunk` | `chunk.ksy` | Yes | Top-level chunk/map binary schema used by `parse.py chunk ...`. |
+| `zombie.iso.IsoGridSquare#load(ByteBuffer,int,boolean)` | `output/decompiled/195/zombie/iso/IsoGridSquare.java` | `types.grid_square` (object block + optional extra block branches) | `grid.ksy` | Yes | Branch layout aligned to v195 decompiled load flow. |
+| `zombie.iso.IsoObject` class-id dispatch (`factoryFromFileInput`, `load`) | `output/decompiled/195/zombie/iso/IsoObject.java` | `types.iso_object` + class-id `switch-on` mapping | `iso_object.ksy` | Yes | v195 class-id mappings are restricted to `<= 35` as in decompiled factory registration. |
+| `zombie.iso.objects.*` subclass loaders | `output/decompiled/195/zombie/iso/objects/*.java` | concrete object payload types | `iso_object/*.ksy` | Partial | Character IDs `1` (player) and `3` (zombie) are implemented; ID `2` (survivor) remains unimplemented. |
+| `zombie.characters.IsoGameCharacter#load(ByteBuffer,int,boolean)` | `output/decompiled/195/zombie/characters/IsoGameCharacter.java` | `types.game_character_base` | `iso_object/character_shared.ksy` | Yes | Shared character base payload used by class IDs `1..3` before subclass tails. |
+| `zombie.characters.IsoPlayer#load(ByteBuffer,int,boolean)` | `output/decompiled/195/zombie/characters/IsoPlayer.java` | `player` | `iso_object/1_player.ksy` | Yes | Includes v195-specific pre-super marker bytes and post-base player fields. |
+| `zombie.characters.IsoZombie#load(ByteBuffer,int,boolean)` | `output/decompiled/195/zombie/characters/IsoZombie.java` | `zombie_character` | `iso_object/3_zombie.ksy` | Yes | Includes v195 zombie tail (`float marker`, time since seen flesh, fake-dead int, worn items). |
+| `zombie.characters.Stats`, `zombie.characters.BodyDamage.*`, `IsoGameCharacter.XP` | `output/decompiled/195/zombie/characters/Stats.java`, `.../BodyDamage/*.java`, `.../IsoGameCharacter.java` | character sub-structures (`character_stats`, `body_damage`, `character_xp`, `fitness_data`) | `iso_object/character_shared.ksy` | Yes | Version gates and field order aligned to v195 loaders. |
+| `zombie.inventory.InventoryItem#load/#save` | `output/decompiled/195/zombie/inventory/InventoryItem.java` | inventory item/container payload types | `inventory.ksy` | Partial | Contains post-195 extension flags/branches not present in v195 load/save. |
+| `zombie.vehicles.BaseVehicle#load/#save` | `output/decompiled/195/zombie/vehicles/BaseVehicle.java` | vehicle payload structure | `base_vehicle.ksy` | Partial | Animal/entity-only branches have been removed; additional strict parity re-audit remains optional. |
+| `zombie.erosion.ErosionData.Square#load` and category loaders | `output/decompiled/195/zombie/erosion/ErosionData.java`, `output/decompiled/195/zombie/erosion/categories/*.java` | erosion square/category data | `erosion.ksy`, `erosion/*.ksy` | Yes | Updated for robust v195 parsing and iterative verification. |
+| `zombie.world.DictionaryData#loadFromByteBuffer/#saveToByteBuffer` | `output/decompiled/195/zombie/world/DictionaryData.java` | world dictionary root structures | `world_dictionary.ksy` | Yes | Reworked for v195-specific dictionary layout. |
+| `zombie.world.ItemInfo#load/#save` | `output/decompiled/195/zombie/world/ItemInfo.java` | item info sub-structures / flags | `world_dictionary.ksy` | Yes | Item flag and module/mod-index encoding aligned to v195. |
+| `zombie.worldMap.WorldMapVisited` loaders/savers | `output/decompiled/195/zombie/worldMap/WorldMapVisited*.java` | visited map data | `visited.ksy` | Yes | Parsed successfully in v195 validation runs. |
+| lot/tiles companion formats | decompiled anchors not fully indexed for this pass | static companion structures | `lotheader.ksy`, `lotpack.ksy`, `tile_def.ksy` | Partial | Included from baseline; not fully re-audited against v195 decompiled sources in this pass. |
+| metadata binary format | v195 sample missing (`test_data/195/metadata.bin`) | metadata root structure | `metadata.ksy` | Partial | Schema exists, but sample-based v195 validation is blocked by missing file. |
+| visual subformat used by object/inventory paths | shared helper paths across iso/inventory serializers | visual helper structure | `visual.ksy` | Partial | Reused helper schema; not fully source-traced in this v195 audit pass. |
+| blood splat subformat | shared blood/decal paths in chunk-related serializers | blood/decal helper structure | `blood_splat.ksy` | Partial | Carried as shared subformat; no dedicated v195 source re-audit in this pass. |
+| Removed obsolete v195 carryovers (`animal.ksy`, `iso_object` class-id `36..41` branches) | `output/decompiled/195/zombie/iso/IsoObject.java` and absence of animal serializers in decompiled tree | removal cleanup | `animal.ksy`, `iso_object/37_*.ksy`, `iso_object/38_*.ksy`, `iso_object/39_*.ksy`, `iso_object/40_*.ksy`, `iso_object/41_*.ksy` | Yes | Removed from v195 folder and dispatch table during cleanup pass. |
+
+## Notes
+- Post-clean validation status: `data_spec/build.bat 195` succeeded and `data_spec/test.bat test_data/195 c v wd vis` completed with no parser errors logged.
+- Remaining data gap: `metadata.ksy` cannot be validated for v195 until `test_data/195/metadata.bin` is available.

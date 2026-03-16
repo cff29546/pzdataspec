@@ -1,0 +1,32 @@
+# Project-generated artifacts
+output/
+
+# Local machine configuration
+conf.txt
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache / tooling artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+
+# Build/package metadata
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Editor / OS clutter
+.vscode/

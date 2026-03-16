@@ -1,0 +1,10 @@
+# Compiled build artifacts
+**/input/*.class
+**/input/example_gen.exe
+**/input/bin/
+**/input/obj/
+
+# Workflow-generated runtime artifacts
+**/output/*.bin
+**/output/lib/
+**/output/parsed.txt
