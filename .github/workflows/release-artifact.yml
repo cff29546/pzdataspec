@@ -61,9 +61,15 @@ jobs:
           $url = "https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/$version/$zip"
           Invoke-WebRequest -Uri $url -OutFile $zip
           Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP/ksc" -Force
-          $ksc = Get-ChildItem "$env:RUNNER_TEMP/ksc" -Recurse -Filter "ksc.bat" | Select-Object -First 1
-          if (-not $ksc) { throw "ksc.bat not found after extraction" }
-          $ksc.Directory.FullName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          $kscBat = Get-ChildItem "$env:RUNNER_TEMP/ksc" -Recurse -Filter "kaitai-struct-compiler.bat" | Select-Object -First 1
+          if (-not $kscBat) { throw "kaitai-struct-compiler.bat not found after extraction" }
+          $binDir = $kscBat.Directory.FullName
+          $shim = Join-Path $binDir "ksc.cmd"
+          if (-not (Test-Path $shim)) {
+            "@echo off`r`ncall `"%~dp0kaitai-struct-compiler.bat`" %*" | Out-File -FilePath $shim -Encoding ascii
+          }
+          $binDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          & "$shim" --version
 
       - name: Build release artifacts
         shell: cmd
