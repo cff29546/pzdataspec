@@ -177,7 +177,7 @@ def locatete_world_dict(chunk_path):
     return None
 
 
-def load_world_dict(path):
+def load_world_dict_sprites(path):
     if not path:
         return {}
     #print(f"Loading world dictionary from {path}...")
@@ -217,7 +217,7 @@ class ChunkData(object):
                         sprites.append(sprite_id)
 
                 if sprites:
-                    self.set_sprites(layer, x, y, sprites)
+                    self._set_sprites(layer, x, y, sprites)
                 bit <<= 1
                 layer += 1
 
@@ -243,17 +243,22 @@ class ChunkData(object):
             self.max_layer -= 32
         self.layers = [None] * (self.max_layer - self.min_layer)
 
-    # assume layer, x, y are valid
     def get_sprites(self, layer, x, y):
         idx = layer - self.min_layer
+        if idx < 0 or idx >= len(self.layers):
+            return None
+        if x < 0 or x >= self.block_size:
+            return None
+        if y < 0 or y >= self.block_size:
+            return None
         if self.layers[idx] is None:
             return None
         if self.layers[idx][x] is None:
             return None
         return self.layers[idx][x][y]
 
-    # assume layer, x, y are valid    
-    def set_sprites(self, layer, x, y, sprites):
+    # used by internal methods, assume layer, x, y are valid
+    def _set_sprites(self, layer, x, y, sprites):
         idx = layer - self.min_layer
         if self.layers[idx] is None:
             self.layers[idx] = [None] * self.block_size
@@ -261,7 +266,8 @@ class ChunkData(object):
             self.layers[idx][x] = [None] * self.block_size
         self.layers[idx][x][y] = sprites
 
-    # assume layer is valid    
     def get_layer(self, layer):
         idx = layer - self.min_layer
+        if idx < 0 or idx >= len(self.layers):
+            return None
         return self.layers[idx]

@@ -7,7 +7,7 @@ from pzdataspec.utils import (
     load_chunk,
     load_conf,
     load_tile_defs,
-    load_world_dict,
+    load_world_dict_sprites,
     locatete_world_dict,
 )
 
@@ -47,7 +47,7 @@ def main():
 
     tile_defs = load_tile_defs(pz_root, mod_root, args.version)
     stats(tile_defs, 'Tile definitions')
-    world_sprites = load_world_dict(locatete_world_dict(args.file))
+    world_sprites = load_world_dict_sprites(locatete_world_dict(args.file))
     stats(world_sprites, 'World dictionary')
     tile_defs.update(world_sprites)
     chunk = load_chunk(args.file)
