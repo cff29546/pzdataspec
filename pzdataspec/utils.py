@@ -151,8 +151,8 @@ def load_mod_tile_defs(defs, mod_root, version):
         if not tiledef_path:
             continue
         if file_no in file_no_map:
-            if tiledef_path != file_no_map[file_no]:
-                print(f'WARNING: tiledef file number {file_no} already used by {file_no_map[file_no]}, skipping {tiledef_path}')
+            #if tiledef_path != file_no_map[file_no]:
+            #    print(f'WARNING: tiledef file number {file_no} already used by {file_no_map[file_no]}, skipping {tiledef_path}')
             continue
         update_tile_defs(defs, tiledef_path, file_no)
         file_no_map[file_no] = tiledef_path
