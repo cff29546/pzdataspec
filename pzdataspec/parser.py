@@ -12,7 +12,7 @@ def import_spec_module(schema_name):
     spec_path = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spec'))
     path_added = False
     if spec_path not in sys.path:
-        sys.path.append(spec_path)
+        sys.path.insert(0, spec_path)
         path_added = True
     schema = importlib.import_module(schema_name)
     if path_added:
