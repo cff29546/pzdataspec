@@ -10,7 +10,7 @@ on:
         description: "How to publish build outputs"
         required: true
         type: choice
-        default: release
+        default: artifact
         options:
           - artifact
           - release
@@ -102,7 +102,7 @@ jobs:
           "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Upload workflow artifact
-        if: ${{ github.event.inputs.publish_mode == 'artifact' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.publish_mode == 'artifact' }}
         uses: actions/upload-artifact@v4
         with:
           name: pzdataspec-release-${{ steps.output_tag.outputs.tag }}
@@ -113,7 +113,7 @@ jobs:
           retention-days: 14
 
       - name: Publish GitHub Release
-        if: ${{ github.event.inputs.publish_mode == 'release' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_mode == 'release') }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.output_tag.outputs.tag }}
