@@ -1,9 +1,11 @@
 import os
 from . import parser
 
-TileDef = parser.Parser("tile_def")
-Chunk = parser.Parser('chunk')
-WorldDict = parser.Parser('world_dictionary')
+TileDef = parser.Parser("tile_def", version='latest')
+Chunk_B41 = parser.Parser('chunk', version=195)
+Chunk = parser.Parser('chunk', version='latest')
+WorldDict_B41 = parser.Parser('world_dictionary', version=195)
+WorldDict = parser.Parser('world_dictionary', version='latest')
 
 
 def load_conf(path):
@@ -52,15 +54,30 @@ def update_tile_defs(defs, path, file_no=0):
             defs[sprite_id] = f'{sheet_name}_{tile_idx}'
 
 
+B41_TILES = [
+    'tiledefinitions.tiles', # 0
+    'newtiledefinitions.tiles', # 1
+    'tiledefinitions_erosion.tiles', # 2
+    'tiledefinitions_apcom.tiles', # 3
+    'tiledefinitions_overlays.tiles', # 4
+]
+B42_TILES = [
+    None,
+    'newtiledefinitions.tiles', # 1
+    'tiledefinitions_erosion.tiles', # 2
+    None,
+    'tiledefinitions_overlays.tiles', # 4
+    'tiledefinitions_b42chunkcaching.tiles', # 5
+]
 def load_tile_defs(pz_root, mod_root=None, version=None):
     if not pz_root:
         return {}
     tile_defs = {}
     tile_root = os.path.join(pz_root, 'media')
-    update_tile_defs(tile_defs, os.path.join(tile_root, 'newtiledefinitions.tiles'), 1)
-    update_tile_defs(tile_defs, os.path.join(tile_root, 'tiledefinitions_erosion.tiles'), 2)
-    update_tile_defs(tile_defs, os.path.join(tile_root, 'tiledefinitions_overlays.tiles'), 4)
-    update_tile_defs(tile_defs, os.path.join(tile_root, 'tiledefinitions_b42chunkcaching.tiles'), 5)
+    tile_sets = B41_TILES if version and int(version) == 41 else B42_TILES
+    for idx, tile_set in enumerate(tile_sets):
+        if tile_set:
+            update_tile_defs(tile_defs, os.path.join(tile_root, tile_set), idx)
     if mod_root:
         load_mod_tile_defs(tile_defs, mod_root, version)
     return tile_defs
@@ -158,8 +175,11 @@ def load_mod_tile_defs(defs, mod_root, version):
         file_no_map[file_no] = tiledef_path
 
 
-def load_chunk(path):
-    raw = Chunk.parse_file(path)
+def load_chunk(path, version=None):
+    if version == 41:
+        raw = Chunk_B41.parse_file(path)
+    else:
+        raw = Chunk.parse_file(path)
     return ChunkData(raw)
 
 
@@ -177,11 +197,14 @@ def locatete_world_dict(chunk_path):
     return None
 
 
-def load_world_dict_sprites(path):
+def load_world_dict_sprites(path, version=None):
     if not path:
         return {}
     #print(f"Loading world dictionary from {path}...")
-    wd = WorldDict.parse_file(path)
+    if version == 41:
+        wd = WorldDict_B41.parse_file(path)
+    else:
+        wd = WorldDict.parse_file(path)
     sprite_map = {}
     for entry in wd.sprites:
         sprite_map[int(entry.id)] = decode_str_value(entry.name)
@@ -195,6 +218,7 @@ class ChunkData(object):
             - if not empty, self.layers[layer][x][y] is a list of sprite_id
     """
     def __init__(self, raw):
+        self.raw = raw
         self.block_size = raw.block_size
         mask = 0
         for square in raw.squares:

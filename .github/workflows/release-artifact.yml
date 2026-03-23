@@ -1,12 +1,11 @@
 name: Release Artifact
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
-      target:
-        description: "Build target: all | latest | world version (e.g. 195)"
-        required: false
-        default: "latest"
       publish_mode:
         description: "How to publish build outputs"
         required: true
@@ -15,9 +14,8 @@ on:
         options:
           - artifact
           - release
-          - both
       release_tag:
-        description: "Tag to create/update release (required for release/both, example: v195)"
+        description: "Tag to create/update release (required for release)"
         required: false
         default: ""
 
@@ -74,22 +72,40 @@ jobs:
       - name: Build release artifacts
         shell: cmd
         run: |
-          call release.bat ${{ github.event.inputs.target }}
+          call release.bat
 
-      - name: Validate release inputs
-        if: ${{ github.event.inputs.publish_mode == 'release' || github.event.inputs.publish_mode == 'both' }}
+      - name: Setup output tag
+        id: output_tag
         shell: pwsh
         run: |
-          $tag = "${{ github.event.inputs.release_tag }}"
+          $pushTag = "$env:GITHUB_REF_NAME"
+          if ("$env:GITHUB_REF_TYPE" -eq "tag" -and -not [string]::IsNullOrWhiteSpace($pushTag)) {
+            $tag = $pushTag
+          } else {
+            $tag = "${{ github.event.inputs.release_tag }}"
+          }
           if ([string]::IsNullOrWhiteSpace($tag)) {
-            throw "release_tag is required when publish_mode is 'release' or 'both'."
+            throw "No tag was resolved. Push a tag (v*) or provide release_tag via workflow_dispatch."
           }
 
+          $releaseDir = "output/release"
+          $sourceZip = Join-Path $releaseDir "pzdataspec.zip"
+          $targetZip = Join-Path $releaseDir ("pzdataspec-{0}.zip" -f $tag)
+          if (-not (Test-Path $sourceZip)) {
+            throw "Expected zip not found: $sourceZip"
+          }
+          if (Test-Path $targetZip) {
+            Remove-Item -Path $targetZip -Force
+          }
+          Move-Item -Path $sourceZip -Destination $targetZip
+
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
       - name: Upload workflow artifact
-        if: ${{ github.event.inputs.publish_mode == 'artifact' || github.event.inputs.publish_mode == 'both' }}
+        if: ${{ github.event.inputs.publish_mode == 'artifact' }}
         uses: actions/upload-artifact@v4
         with:
-          name: pzdataspec-release-${{ github.event.inputs.target }}
+          name: pzdataspec-release-${{ steps.output_tag.outputs.tag }}
           path: |
             output/release/*.zip
             output/release/release_notes.md
@@ -97,10 +113,10 @@ jobs:
           retention-days: 14
 
       - name: Publish GitHub Release
-        if: ${{ github.event.inputs.publish_mode == 'release' || github.event.inputs.publish_mode == 'both' }}
+        if: ${{ github.event.inputs.publish_mode == 'release'  }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.release_tag }}
+          tag_name: ${{ steps.output_tag.outputs.tag }}
           files: output/release/*.zip
           body_path: output/release/release_notes.md
           generate_release_notes: false
