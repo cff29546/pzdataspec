@@ -11,7 +11,7 @@ meta:
     - blood_splat
 
 doc: |
-  Binary layout for a chunk data structure (10x10 for B41 or 8x8 for B42)
+  Binary layout for a chunk data structure (8x8 for B42)
   Structure derived from IsoChunk.LoadFromDiskOrBufferInternal / IsoChunk.Save and related classes.
 
 seq:

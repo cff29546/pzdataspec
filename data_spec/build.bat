@@ -50,7 +50,7 @@ if "%target%"=="" (
     echo Building %ver%
     for %%a in (%~dp0spec/%ver%/*.ksy) do (
         echo Compiling %%~nxa
-        call ksc -t python "%~dp0spec/%ver%/%%~nxa" -d "%output_dir%"
+        call ksc -t python "%~dp0spec/%ver%/%%~nxa" -d "%output_dir%" --python-package .
     )
 ) else (
     echo Compiling %target%

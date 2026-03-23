@@ -10,25 +10,23 @@ def snake_to_pascal(snake_str):
 
 def import_spec_module(schema_name, version=None):
     path_parts = [os.path.dirname(__file__), 'spec']
-    if version:
-        path_parts.append(str(version))
     spec_path = os.path.normpath(os.path.join(*path_parts))
     path_added = False
     if spec_path not in sys.path:
         sys.path.insert(0, spec_path)
         path_added = True
-    schema = importlib.import_module(schema_name)
+    schema = importlib.import_module(f".{schema_name}", package=f"v{version}")
     if path_added:
         sys.path.remove(spec_path)
     return schema
 
 def exists_version(version):
-    spec_path = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spec', str(version)))
+    spec_path = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spec', f'v{version}'))
     return os.path.isdir(spec_path)
 
 def get_all_versions():
     spec_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), 'spec'))
-    versions = [d for d in os.listdir(spec_dir) if os.path.isdir(os.path.join(spec_dir, d)) and d.isdigit()]
+    versions = [d[1:] for d in os.listdir(spec_dir) if os.path.isdir(os.path.join(spec_dir, d)) and d.startswith('v') and d[1:].isdigit()]
     return sorted(versions, key=int)
 
 def get_latest_version():

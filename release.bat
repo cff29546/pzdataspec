@@ -36,7 +36,7 @@ goto :eof
 
 :build_single
 rem build spec
-call "%~dp0data_spec\build.bat" %1 -o "%output_dir%\spec\%1"
+call "%~dp0data_spec\build.bat" %1 -o "%output_dir%\spec\v%1"
 exit /b
 
 :eof

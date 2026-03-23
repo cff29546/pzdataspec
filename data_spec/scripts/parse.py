@@ -128,8 +128,10 @@ def snake_to_pascal(name):
 def load_spec(schema_name, lib_path=None):
     if lib_path is None:
         lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../output/spec'))
-    sys.path.append(lib_path)
-    SchemaModule = importlib.import_module(schema_name)
+    dir_name = os.path.dirname(lib_path)
+    package = os.path.basename(lib_path)
+    sys.path.append(dir_name)
+    SchemaModule = importlib.import_module(f'.{schema_name}', package=package)
     Schema = getattr(SchemaModule, snake_to_pascal(schema_name))
     return Schema
 
