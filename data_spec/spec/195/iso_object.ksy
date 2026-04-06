@@ -246,7 +246,7 @@ types:
         if: (flag & 16) != 0 or (flag & 32) != 0
     instances:
       name:
-        value: '(flag & 2) != 0 ? "Grass" : raw_name.value'
+        value: '((flag & 2) != 0) ? "Grass" : (((flag & 4) != 0 or (flag & 8) != 0) ? raw_name.value : (((flag & 16) != 0 or (flag & 32) != 0) ? sprite_name.value : ""))'
 
   extra_data:
     params:

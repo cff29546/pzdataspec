@@ -131,6 +131,9 @@ types:
       - id: pet_timer
         type: f4
         if: world_version >= 236
+      - id: is_wild
+        type: u1
+        if: world_version >= 245
 
   # characters.animal.AnimalGene.save / load
   animal_gene:

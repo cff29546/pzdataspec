@@ -13,7 +13,7 @@ for %%a in (%*) do (
 
 rem load conf.txt variables
 set temp_file=%temp%\conf_temp.txt
-for /f "usebackq tokens=1,2 delims==" %%a in ("../conf.txt") do (
+for /f "usebackq tokens=1,2 delims==" %%a in ("%~dp0..\conf.txt") do (
     set key=%%a
     set value=%%b
     cmd /c echo !value!>%temp_file%
