@@ -30,7 +30,13 @@ python "%~dp0scripts\gen_release_notes.py" all
 rem pack output/release/pzdataspec.zip
 pushd "%~dp0output\release"
 if exist pzdataspec.zip del pzdataspec.zip
-powershell -Command "Compress-Archive -Path pzdataspec -DestinationPath pzdataspec.zip"
+rem powershell.exe -NoProfile -Command "$archive = Join-Path $PSHOME 'Modules\Microsoft.PowerShell.Archive\Microsoft.PowerShell.Archive.psd1'; Import-Module $archive -ErrorAction Stop; Compress-Archive -Path 'pzdataspec' -DestinationPath 'pzdataspec.zip'"
+where pwsh >nul 2>&1
+if ERRORLEVEL 1 (
+    powershell -Command "Compress-Archive -Path pzdataspec -DestinationPath pzdataspec.zip"
+) else (
+    pwsh -Command "Compress-Archive -Path pzdataspec -DestinationPath pzdataspec.zip"
+)
 popd
 goto :eof
 
