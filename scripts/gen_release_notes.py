@@ -7,13 +7,42 @@ DEFAULT_MAPPING_PATH = os.path.join(BASE_DIR, "../data_spec/spec/version_mapping
 DEFAULT_RELEASE_NOTES_PATH = os.path.join(BASE_DIR, "../output/release/release_notes.md")
 DEFAULT_SPEC_DIR = os.path.join(BASE_DIR, "../data_spec/spec")
 
+
+def latest(version1, version2):
+    # Compare two version strings and return the latest one
+    def gt(v1, v2):
+        if v1 == v2:
+            return False
+        if v1.isdigit() and v2.isdigit():
+            return int(v1) > int(v2)
+        return v1 > v2
+
+    v1_parts = version1.split(".")
+    v2_parts = version2.split(".")
+    
+    for p1, p2 in zip(v1_parts, v2_parts):
+        if gt(p1, p2):
+            return version1
+        elif gt(p2, p1):
+            return version2
+    
+    # If all parts are equal so far, the longer version is considered later
+    if len(v1_parts) > len(v2_parts):
+        return version1
+    else:
+        return version2
+
+
 def load_version_mapping(path):
     mapping = {}
     with open(path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f.read())
     for key, value in data.items():
-        if isinstance(key, int) and isinstance(value, str):
-            mapping[key] = value.strip()
+        if not isinstance(key, str) or not isinstance(value, int):
+            continue
+        if value in mapping:
+            key = latest(key, mapping[value])
+        mapping[value] = key
     return mapping
 
 
@@ -21,15 +50,12 @@ def gen_notes_text(mapping, versions, latest_world=None):
     lines = []
     lines.append("# pzdataspec release artifacts")
     lines.append("")
-    lines.append("| Asset | World version | Game version |")
-    lines.append("|---|---:|---|")
+    lines.append("| Data spec version (world version) | Latest Supported Game version |")
+    lines.append("|---|---|")
 
     for v in versions:
         game_version = mapping.get(v, "Unknown")
-        asset_name = f"pzdataspec-{v}.zip"
-        if v == latest_world:
-            asset_name += " (latest)"
-        lines.append(f"| {asset_name} | {v} | {game_version} |")
+        lines.append(f"| {v} | {game_version} |")
 
     lines.append("")
     return "\n".join(lines)

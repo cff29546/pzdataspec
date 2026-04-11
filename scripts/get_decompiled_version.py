@@ -11,19 +11,21 @@ def core_version(core_java):
     First locate the getVersion function, using the keyword ' new GameVersion(' to find:
         private static final GameVersion gameVersion = new GameVersion(<major>, <minor>, "<suffix>");
     
-    Then return the version as a string in the format "<major>.<minor>"
+    Then return the version as a string in the format "<major>.<minor><suffix>.<build>"
     """
     if not os.path.isfile(core_java):
         return None
     with open(core_java, "r", encoding="utf-8") as f:
         source = f.read()
-    version_match = re.search(r'new GameVersion\((\d+), (\d+),', source)
+    version_match = re.search(r'new GameVersion\((\d+), (\d+), "([^"]*)"', source)
     if not version_match:
         return None
     major = version_match.group(1)
     minor = version_match.group(2)
-    return f"{major}.{minor}"
-
+    suffix = version_match.group(3)
+    build_match = re.search(r'int buildVersion = (\d+);', source)
+    build = build_match.group(1) if build_match else 0
+    return f"{major}.{minor}{suffix}.{build}"
 def iso_chunk_version(iso_chunk_java):
     """
     This method extracts the world version from the IsoChunk.java source code.
@@ -89,7 +91,6 @@ def get_game_version(source_path):
     version = core_version(core_java)
     if version is None:
         sys.stderr.write("Error: Could not determine game version.\n")
-        version = 'unknown_game_version'
     return version
 
 def print_version(version_function, cmd_args):
@@ -115,8 +116,15 @@ def update_version_mapping(cmd_args):
         if os.path.isdir(folder_path):
             world_version = get_world_version(folder_path)
             game_version = get_game_version(folder_path)
-            if world_version:
-                mapping[world_version] = game_version
+            if world_version and game_version:
+                full_version = f"{game_version}_{world_version}"
+                mapping[game_version] = world_version
+                if folder != full_version:
+                    if os.path.exists(os.path.join(args.decompiled_root, full_version)):
+                        print(f"Warning: Target folder '{full_version}' already exists. Skipping renaming of '{folder}'.")
+                    else:
+                        os.rename(folder_path, os.path.join(args.decompiled_root, full_version))
+                        print(f"Renamed '{folder}' to '{full_version}'")
 
     if args.mapping_file:
         with open(args.mapping_file, "w", encoding="utf-8") as f:
