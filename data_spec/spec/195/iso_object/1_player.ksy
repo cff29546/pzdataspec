@@ -12,10 +12,6 @@ params:
     type: u1
 
 seq:
-  - id: unknown_header_1
-    type: u1
-  - id: unknown_header_2
-    type: u1
   - id: hours_survived
     type: f8
   - id: zombie_kills

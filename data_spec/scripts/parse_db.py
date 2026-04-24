@@ -43,6 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', type=str, help='Output file to write results to', default=None)
     parser.add_argument('-d', '--data-field', type=str, default='data', help='Field name containing binary data')
     parser.add_argument('-a', '--arg-fields', type=str, default='', help='Additional fields to retrieve (comma-separated)')
+    parser.add_argument('-e', '--extra-args', type=str, default='', help='Comma-separated constant params appended after SQL arg fields (numbers or strings)')
     parser.add_argument('-D', '--dump-path', type=str, default=None, help='Directory to dump error data')
     args = parser.parse_args()
 
@@ -50,6 +51,19 @@ if __name__ == '__main__':
     if args.arg_fields:
         fields.extend(args.arg_fields.split(','))
     rows = query_data(args.db, args.table, fields)
+
+    extra_args = []
+    if args.extra_args.strip():
+        for raw in args.extra_args.split(','):
+            token = raw.strip()
+            if token == '':
+                continue
+            if token.lstrip('-').isdigit():
+                extra_args.append(int(token))
+            else:
+                extra_args.append(token)
+    if extra_args:
+        rows = [tuple(list(r) + extra_args) for r in rows]
 
     # Dynamically import the schema module
     Schema = load_spec(args.schema)

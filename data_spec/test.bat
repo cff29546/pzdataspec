@@ -49,6 +49,13 @@ if "%v%"=="1" (
     type "%output_tmp%" >> "%output_log%"
 )
 
+rem players database
+if "%p%"=="1" (
+    call %~dp0scripts\test_players.bat "%save_path%\players.db" "%output_folder%\players.txt" > "%output_tmp%" 2>> "%output_log_error%"
+    type "%output_tmp%"
+    type "%output_tmp%" >> "%output_log%"
+)
+
 rem world dictionary
 if "%wd%"=="1" (
     VERIFY > nul

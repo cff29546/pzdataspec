@@ -43,6 +43,9 @@ for /d %%g in ("%PZ_SAVE_ROOT%\*") do (
         rem vehicles database
         if "%v%"=="1" call %~dp0scripts\test_vehicles.bat "!save_path!\vehicles.db" "!output_folder!\vehicles.txt"
 
+        rem players database
+        if "%p%"=="1" call %~dp0scripts\test_players.bat "!save_path!\players.db" "!output_folder!\players.txt"
+
         rem world dictionary
         VERIFY > nul
         if "%wd%"=="1" python %~dp0scripts\parse.py world_dictionary "!save_path!\WorldDictionary.bin" -nv -o "!output_folder!\world_dictionary.txt" 2>nul

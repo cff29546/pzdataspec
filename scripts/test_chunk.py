@@ -17,7 +17,7 @@ def resolve_sprite_name(sprite_id, mapping):
 
 
 def stats(mapping, name):
-    print(f'{name} has {len(mapping)} entries')
+    print('{} has {} entries'.format(name, len(mapping)))
 
 
 def main():
@@ -64,7 +64,7 @@ def main():
                 if not layer[x][y]:
                     continue
                 names = [resolve_sprite_name(sprite_id, tile_defs) for sprite_id in layer[x][y]]
-                print(f'{l} {x},{y}: {",".join(names)}')
+                print('{} {},{}: {}'.format(l, x, y, ','.join(names)))
 
 
 if __name__ == '__main__':

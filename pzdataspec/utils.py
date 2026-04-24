@@ -38,7 +38,6 @@ def update_tile_defs(defs, path, file_no=0):
     if file_no <= 0:
         # skip patches
         return
-    #print(f"Loading tile definitions from {path} with file number {file_no} ...")
     index_offset = 512 * 512 * file_no
     page_size = 512
     if file_no == 1:
@@ -168,8 +167,6 @@ def load_mod_tile_defs(defs, mod_root, version):
         if not tiledef_path:
             continue
         if file_no in file_no_map:
-            #if tiledef_path != file_no_map[file_no]:
-            #    print(f'WARNING: tiledef file number {file_no} already used by {file_no_map[file_no]}, skipping {tiledef_path}')
             continue
         update_tile_defs(defs, tiledef_path, file_no)
         file_no_map[file_no] = tiledef_path
@@ -200,7 +197,6 @@ def locatete_world_dict(chunk_path):
 def load_world_dict_sprites(path, version=None):
     if not path:
         return {}
-    #print(f"Loading world dictionary from {path}...")
     if version == 41:
         wd = WorldDict_B41.parse_file(path)
     else:
