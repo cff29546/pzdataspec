@@ -18,6 +18,8 @@ types:
         type: u1
       - id: item
         type: item(world_version)
+      - id: remaining_bytes
+        type: common::bytes_eos
       
 
   # inventory.InventoryItem.saveWithSize / loadItem (static method)

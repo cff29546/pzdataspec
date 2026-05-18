@@ -207,6 +207,29 @@ def load_world_dict_sprites(path, version=None):
     return sprite_map
 
 
+def load_world_dict_items(path, version=None):
+    if not path:
+        return {}
+    if version == 41:
+        wd = WorldDict_B41.parse_file(path)
+    else:
+        wd = WorldDict.parse_file(path)
+    item_map = {}
+    modules = [decode_str_value(m).strip() for m in getattr(wd, 'modules', [])]
+    for entry in getattr(wd, 'items', []):
+        item_id = int(entry.registry_id)
+        item_name = decode_str_value(entry.name).strip()
+        module_index = int(entry.module_index)
+
+        # Matches DictionaryInfo.load(): fullType = moduleName + "." + name
+        if 0 <= module_index < len(modules):
+            module_name = modules[module_index]
+            item_map[item_id] = '.'.join([module_name, item_name])
+        else:
+            item_map[item_id] = item_name
+
+    return item_map
+
 class ChunkData(object):
     """
         self.layers: A list of non-empty layers, ranges from min_layer to max_layer (exclusive)
