@@ -117,11 +117,15 @@ function Invoke-Step {
 }
 
 function Ensure-Command {
-    param([string]$Name)
-    $cmd = Get-Command $Name -ErrorAction SilentlyContinue
-    if (-not $cmd) {
-        throw "Required command not found: $Name"
+    param([string[]]$Names)
+    foreach ($name in $Names) {
+        $cmd = Get-Command $name -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($cmd) {
+            return $cmd
+        }
     }
+
+    throw "Required command(s) not found: $($Names -join ' or ')"
 }
 
 foreach ($cfg in $Examples) {
@@ -179,10 +183,9 @@ foreach ($cfg in $Examples) {
         }
 
         if ($cfg.Lang -eq "csharp") {
-            $hasCsc = $null -ne (Get-Command csc -ErrorAction SilentlyContinue)
-            $hasDotnet = $null -ne (Get-Command dotnet -ErrorAction SilentlyContinue)
+            $compilerCommand = Ensure-Command @("csc", "dotnet")
 
-            if ($hasCsc) {
+            if ($compilerCommand.Name -like "csc*") {
                 Invoke-Step "Step 1: compile C# input (csc)" {
                     Push-Location $inputDir
                     try {
@@ -198,7 +201,7 @@ foreach ($cfg in $Examples) {
                     } finally { Pop-Location }
                 }
             }
-            elseif ($hasDotnet) {
+            else {
                 Invoke-Step "Step 1: compile C# input (dotnet build)" {
                     Push-Location $inputDir
                     try {
@@ -214,15 +217,12 @@ foreach ($cfg in $Examples) {
                     } finally { Pop-Location }
                 }
             }
-            else {
-                throw "Required command not found: csc or dotnet"
-            }
         }
 
         Invoke-Step "Step 2: compile .ksy to Python parser" {
-            Ensure-Command "ksc"
-            & ksc -t python $ksyPath -d $outLibDir
-            if ($LASTEXITCODE -ne 0) { throw "ksc failed" }
+            $ksc = Ensure-Command @("kaitai-struct-compiler", "ksc")
+            & $ksc -t python $ksyPath -d $outLibDir --python-package .
+            if ($LASTEXITCODE -ne 0) { throw "kaitai-struct-compiler failed" }
 
             if ($null -ne $cfg.ExtraRuntimeFiles -and $cfg.ExtraRuntimeFiles.Count -gt 0) {
                 foreach ($runtimeFile in $cfg.ExtraRuntimeFiles) {

@@ -39,6 +39,17 @@ if not "%target%"=="" (
     )
 )
 
+set ksc=kaitai-struct-compiler
+where %ksc% >nul 2>&1
+if errorlevel 1 (
+    set ksc=ksc
+    where !ksc! >nul 2>&1
+    if errorlevel 1 (
+        echo Error: kaitai-struct-compiler not found in PATH
+        exit /b 1
+    )
+)
+
 if not exist "%output_dir%" mkdir "%output_dir%"
 
 if "%target%"=="" (
@@ -50,9 +61,9 @@ if "%target%"=="" (
     echo Building %ver%
     for %%a in (%~dp0spec/%ver%/*.ksy) do (
         echo Compiling %%~nxa
-        call ksc -t python "%~dp0spec/%ver%/%%~nxa" -d "%output_dir%" --python-package .
+        call %ksc% -t python "%~dp0spec/%ver%/%%~nxa" -d "%output_dir%" --python-package .
     )
 ) else (
     echo Compiling %target%
-    call ksc -t python "%target%" -d "%output_dir%"
+    call %ksc% -t python "%target%" -d "%output_dir%" --python-package .
 )
