@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+import struct
 RELEASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'output', 'release'))
 sys.path.append(RELEASE_DIR)
 from pzdataspec.utils import (
@@ -10,6 +11,15 @@ from pzdataspec.utils import (
     load_world_dict_sprites,
     locatete_world_dict,
 )
+
+def peek_chunk_version(path):
+    data = None
+    with open(path, 'rb') as f:
+        data = f.read(5)
+    if not data:
+        raise ValueError('File is empty')
+    debug, world_version = struct.unpack('>BI', data)
+    return world_version
 
 
 def resolve_sprite_name(sprite_id, mapping):
@@ -44,8 +54,11 @@ def main():
         print('Project Zomboid root directory not specified. Use -p or set pz_root in config.')
         raise SystemExit(1)
 
-    chunk = load_chunk(args.file)
-    version = 41 if chunk.raw.world_version <= 195 else 42
+    world_version = peek_chunk_version(args.file)
+    version = 41 if world_version <= 195 else 42
+    print(f'Chunk world version: {world_version}, using tile definitions for version {version}')
+    chunk = load_chunk(args.file, version)
+    print(f'Chunk world version: {chunk.raw.world_version}, using tile definitions for version {version}')
     tile_defs = load_tile_defs(pz_root, mod_root, version)
     stats(tile_defs, 'Tile definitions')
     world_sprites = load_world_dict_sprites(locatete_world_dict(args.file))

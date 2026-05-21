@@ -4,7 +4,7 @@ rem arg1: either a version number or a path to a .ksy file
 rem optional: -o output_dir to set output directory for generated python files
 rem compatibility: arg2 is still treated as output_dir when -o is not used
 rem if arg1 is omitted, the latest version is used
-set target=%1
+set target=%~1
 set output_dir=
 
 if /i "%1"=="-o" (
@@ -53,17 +53,46 @@ if errorlevel 1 (
 if not exist "%output_dir%" mkdir "%output_dir%"
 
 if "%target%"=="" (
-    del "%output_dir%\*.py" 2>nul
+    call :clean_output
     if not "%ver%"=="common" (
         echo Using Version %ver%
-        call "%~f0" common -o "%output_dir%"
+        call :process_dir "%~dp0spec\common"
     )
     echo Building %ver%
-    for %%a in (%~dp0spec/%ver%/*.ksy) do (
-        echo Compiling %%~nxa
-        call %ksc% -t python "%~dp0spec/%ver%/%%~nxa" -d "%output_dir%" --python-package .
-    )
+    call :process_dir "%~dp0spec\%ver%"
 ) else (
-    echo Compiling %target%
-    call %ksc% -t python "%target%" -d "%output_dir%" --python-package .
+    if "%target%"=="clean" (
+        call :clean_output
+        exit /b 0
+    )
+    if exist "%target%\" (
+        echo Building %target%
+        call :process_dir "%target%"
+    ) else (
+        call :process_file "%target%"
+    )
 )
+
+exit /b 0
+
+:clean_output
+del "%output_dir%\*.py" 2>nul
+exit /b
+
+:process_file
+echo Compiling %~nx1
+call %ksc% -t python "%~f1" -d "%output_dir%" --python-package .
+if errorlevel 1 (
+    echo Error compiling %~nx1
+)
+exit /b
+
+:process_dir
+for %%a in ("%~f1\*.ksy") do (
+    call :process_file "%%~fa"
+)
+for %%a in ("%~f1\*.py") do (
+    echo Copying %%~nxa
+    copy /Y "%%~fa" "%output_dir%\..\%%~nxa" >nul
+)
+exit /b

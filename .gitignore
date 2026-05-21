@@ -6,7 +6,7 @@ output/
 !.github/skills/**/examples/**/output/**
 
 # Local machine configuration
-conf.txt
+conf*.txt
 
 # Python virtual environments
 .venv/
@@ -34,3 +34,5 @@ pip-wheel-metadata/
 
 # Editor / OS clutter
 .vscode/
+
+/ref

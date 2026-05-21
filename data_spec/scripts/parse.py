@@ -1,7 +1,10 @@
 
 import sys
 import os
+import builtins
 import importlib
+import json
+import yaml
 from kaitaistruct import KaitaiStream, BytesIO
 from kaitaistruct import KaitaiStruct
 from kaitaistruct import __version__ as ks_version
@@ -135,6 +138,69 @@ def load_spec(schema_name, lib_path=None):
     Schema = getattr(SchemaModule, snake_to_pascal(schema_name))
     return Schema
 
+
+def load_data(file_path):
+    # load data based on the file extension
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext == '.json':
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    elif ext in ('.yml', '.yaml'):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+    else:
+        with open(file_path, 'rb') as f:
+            return f.read()
+
+
+def resolve_type(type_str):
+    # type can be native function like int, float, str, etc.
+    # or a custom function which needs to be imported e.g. pkg.func
+    type_name = type_str.strip()
+    if not type_name:
+        return None
+
+    builtin_type = getattr(builtins, type_name, None)
+    if callable(builtin_type):
+        return builtin_type
+    
+    if type_name in globals():
+        global_type = globals()[type_name]
+        if callable(global_type):
+            return global_type
+
+    if '.' not in type_name:
+        return None
+
+    module_name, _, attr_name = type_name.rpartition('.')
+    if not module_name or not attr_name:
+        return None
+
+    try:
+        module = importlib.import_module(module_name)
+        type_func = getattr(module, attr_name)
+    except (ImportError, AttributeError):
+        return None
+
+    return type_func if callable(type_func) else None
+
+
+def parse_param(token):
+    token = token.strip()
+    if ':' in token:
+        type_str, value_str = token.split(':', 1)
+        value_str = value_str.strip()
+        type_func = resolve_type(type_str)
+        if type_func is None:
+            raise ValueError(f"Unsupported parameter type: {type_str}")
+        return type_func(value_str)
+    else:
+        if token.isdigit() or (token.startswith('-') and token[1:].isdigit()):
+            return int(token)
+        else:
+            return token
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description="Parse binary files using a Kaitai Struct schema and output results in a human-readable format.")
@@ -143,7 +209,7 @@ if __name__ == '__main__':
     parser.add_argument('-do', '--dump-output', type=str, default='output/dump.bin', help='Output path for dumped binary data')
     parser.add_argument('-nv', '--no-verbose', action='store_true', help='Disable verbose output')
     parser.add_argument('-l', '--lib-path', type=str, default=None, help='Path to the generated parser library')
-    parser.add_argument("--params", default="", help="Comma-separated root params (numbers or strings)")
+    parser.add_argument('-p', '--params', action='append', default=[], help='Root param in order; repeat for multiple params. Format: value (int or str) or type:value (e.g. -p float:3.14)')
     parser.add_argument('schema', type=str, help='Path to the schema name (not including .ksy)')
     parser.add_argument('files', metavar='F', type=str, nargs='+')
     args = parser.parse_args()
@@ -155,16 +221,7 @@ if __name__ == '__main__':
         print("Could not find schema [{}]".format(args.schema))
         sys.exit(1)
 
-    params = []
-    if args.params.strip():
-        for raw in args.params.split(','):
-            token = raw.strip()
-            if token == '':
-                continue
-            if token.isdigit() or (token.startswith('-') and token[1:].isdigit()):
-                params.append(int(token))
-            else:
-                params.append(token)
+    params = [parse_param(token) for token in args.params]
 
     data = []
     d = None

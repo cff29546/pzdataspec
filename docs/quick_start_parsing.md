@@ -77,13 +77,14 @@ Examples:
 ```bat
 python parse.py chunk "<save_folder>\map\10\20.bin" -o "D:\tmp\chunk_10_20.txt"
 python parse.py world_dictionary "<save_folder>\WorldDictionary.bin" -nv -o "D:\tmp\world_dictionary.txt"
-python parse.py chunk "<save_folder>\10.bin" --params 244 -o "D:\tmp\chunk_with_params.txt"
+python parse.py chunk "<save_folder>\10.bin" -p int:244 -o "D:\tmp\chunk_with_params.txt"
 ```
 
 Useful options:
 
 - `-l, --lib-path`: parser library path (default: `output/spec`)
-- `--params`: root args (comma-separated numbers/strings)
+- `-p, --params`: one root arg per flag, in order used by the schema constructor
+  - format: `value` or `type:value`, e.g., `244`, `int:244`, `float:3.14`, `str:example`
 - `-d, --dump-field`: dump one binary field
 - `-do, --dump-output`: path for dumped bytes
 - `-nv, --no-verbose`: less console output
