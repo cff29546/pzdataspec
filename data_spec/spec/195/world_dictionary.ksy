@@ -45,7 +45,7 @@ seq:
     repeat-expr: num_sprites
 
 types:
-  # world.DictionaryData.save / load
+  # world.ItemInfo.save / load
   dict_info:
     params:
       - id: num_mod_ids
@@ -74,7 +74,7 @@ types:
                 false: s1
       - id: raw_num_mod_overrides
         type: u1
-        if: (flags & 16) != 0 and (flags & 32) == 0
+        if: (flags & 16) != 0 and (flags & 32) != 0
       - id: mod_overrides
         type:
             switch-on: num_mod_ids > 127
@@ -86,7 +86,7 @@ types:
         if: (flags & 16) != 0
     instances:
       num_mod_overrides:
-        value: '(flags & 32) != 0 ? 1 : (flags & 16) != 0 ? raw_num_mod_overrides : 0'
+        value: '(flags & 32) != 0 ? raw_num_mod_overrides : (flags & 16) != 0 ? 1 : 0'
 
   object_entry:
     seq:
