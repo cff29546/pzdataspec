@@ -17,6 +17,8 @@ seq:
     type: s4
   - id: last_hour
     type: s4
+  - id: num_electrical_items
+    type: s4
 instances:
   fuel:
     value: 'raw_fuel > 10.0 ? 10.0 : raw_fuel'
