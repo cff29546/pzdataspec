@@ -61,7 +61,7 @@ def main():
     print(f'Chunk world version: {chunk.raw.world_version}, using tile definitions for version {version}')
     tile_defs = load_tile_defs(pz_root, mod_root, version)
     stats(tile_defs, 'Tile definitions')
-    world_sprites = load_world_dict_sprites(locatete_world_dict(args.file))
+    world_sprites = load_world_dict_sprites(locatete_world_dict(args.file), version)
     stats(world_sprites, 'World dictionary')
     tile_defs.update(world_sprites)
 
