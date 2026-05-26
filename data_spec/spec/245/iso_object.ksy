@@ -102,6 +102,7 @@ seq:
   - id: class_header
     type: common::serialized_class_header
   - id: base_object
+    if: class_header.serialize == 1
     type:
       switch-on: base_type
       cases:

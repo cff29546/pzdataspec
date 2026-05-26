@@ -59,6 +59,8 @@ meta:
     - iso_object/23_compost
     # 24: IsoMannequin
     - iso_object/24_mannequin
+    # 25: BSFurnace (StoneFurnace)
+    - iso_object/25_stone_furnace
     # 26: IsoWindow
     - iso_object/26_window
     # 27: IsoBarricade (NOTE: does NOT call super.load)
@@ -91,6 +93,7 @@ seq:
   - id: class_header
     type: common::serialized_class_header
   - id: base_object
+    if: class_header.serialize == 1
     type:
       switch-on: base_type
       cases:
@@ -129,7 +132,7 @@ seq:
         22: generator(world_version, debug)
         23: compost(world_version, debug)
         24: mannequin(world_version, debug)
-        # NOTE: ID 25 is not used
+        25: stone_furnace(world_version, debug)
         26: window(world_version, debug)
         27: barricade(world_version, debug)
         28: tree(world_version, debug)

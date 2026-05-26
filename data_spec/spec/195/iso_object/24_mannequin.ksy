@@ -23,6 +23,8 @@ seq:
     type: u1
   - id: mannequin_script_name
     type: common::string_utf
+    if: world_version >= 191
+    doc: "IsoMannequin.mannequinScriptName (v>=191)"
   - id: pose
     type: common::string_utf
   - id: human_visual

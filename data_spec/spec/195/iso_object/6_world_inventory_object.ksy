@@ -4,7 +4,6 @@ meta:
   imports:
     - ../../common/common
     - ../inventory
-    - ../entity
 params:
   - id: world_version
     type: u4
@@ -12,27 +11,28 @@ params:
     type: u1
 seq:
   # NOTE: IsoWorldInventoryObject does NOT call super.load()
+  # zombie.iso.objects.IsoWorldInventoryObject.load(ByteBuffer, int, boolean)
   - id: xoff
     type: f4
+    doc: "IsoWorldInventoryObject.xoff"
   - id: yoff
     type: f4
+    doc: "IsoWorldInventoryObject.yoff"
   - id: zoff
     type: f4
+    doc: "IsoWorldInventoryObject.zoff"
   - id: offset_x
     type: f4
+    doc: "var4 (offsetX in save)"
   - id: offset_y
     type: f4
+    doc: "var5 (offsetY in save)"
   - id: item
     type: inventory::sized_blob(world_version)
+    doc: "InventoryItem.loadItem(var1, var2)"
   - id: drop_time
     type: f8
+    doc: "IsoWorldInventoryObject.dropTime (v>=108, always true at v195)"
   - id: bit_flags
     type: u1
-  - id: entity
-    type: entity::game_entity(world_version)
-    if: (bit_flags & 2) != 0
-instances:
-  ignore_remove_sandbox:
-    value: (bit_flags & 1) != 0
-  has_extended_placement:
-    value: (bit_flags & 4) != 0
+    if: world_version >= 193
