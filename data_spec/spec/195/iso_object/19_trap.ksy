@@ -12,9 +12,7 @@ params:
 seq:
   - id: sensor_range
     type: s4
-  - id: fire_starting_chance
-    type: s4
-  - id: fire_starting_energy
+  - id: fire_power
     type: s4
   - id: fire_range
     type: s4
