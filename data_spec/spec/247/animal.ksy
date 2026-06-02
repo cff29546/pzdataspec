@@ -134,6 +134,9 @@ types:
       - id: is_wild
         type: u1
         if: world_version >= 245
+      - id: online_id
+        type: s2
+        if: world_version >= 247
 
   # characters.animal.AnimalGene.save / load
   animal_gene:

@@ -5,6 +5,7 @@ meta:
     - ../../common/common
     - ../inventory
     - ../visual
+    - ../animal
     - character_shared
 
 params:
@@ -89,6 +90,22 @@ types:
         type: common::string_utf
       - id: animal_size
         type: f4
+      - id: num_genes
+        type: u1
+        if: _root.world_version >= 246
+      - id: genes
+        type: animal::animal_gene
+        repeat: expr
+        repeat-expr: num_genes
+        if: _root.world_version >= 246
+      - id: num_genetic_disorders
+        type: u1
+        if: _root.world_version >= 246
+      - id: genetic_disorders
+        type: common::string_utf
+        repeat: expr
+        repeat-expr: num_genetic_disorders
+        if: _root.world_version >= 246
       - id: custom_name
         type: common::string_utf
       - id: corpse_item
