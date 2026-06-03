@@ -18,14 +18,18 @@ def core_version(core_java):
     with open(core_java, "r", encoding="utf-8") as f:
         source = f.read()
     version_match = re.search(r'new GameVersion\((\d+), (\d+), "([^"]*)"', source)
-    if not version_match:
-        return None
-    major = version_match.group(1)
-    minor = version_match.group(2)
-    suffix = version_match.group(3)
-    build_match = re.search(r'int buildVersion = (\d+);', source)
-    build = build_match.group(1) if build_match else 0
-    return f"{major}.{minor}{suffix}.{build}"
+    if version_match:
+        major = version_match.group(1)
+        minor = version_match.group(2)
+        suffix = version_match.group(3)
+        build_match = re.search(r'int buildVersion = (\d+);', source)
+        build = build_match.group(1) if build_match else 0
+        return f"{major}.{minor}{suffix}.{build}"
+    # Fallback for older versions (e.g. 40.x) that use a plain string field
+    version_match = re.search(r'versionNumber\s*=\s*"([^"]+)"', source)
+    if version_match:
+        return version_match.group(1)
+    return None
 def iso_chunk_version(iso_chunk_java):
     """
     This method extracts the world version from the IsoChunk.java source code.

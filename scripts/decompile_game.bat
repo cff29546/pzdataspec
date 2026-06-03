@@ -36,6 +36,12 @@ for /f "usebackq tokens=1,2 delims==" %%a in ("%~dp0..\conf.txt") do (
     set /p %%a=<%temp_file%
 )
 
+if not "%~1"=="" (
+    set PZ_ROOT=%~1
+)
+
+echo Using PZ_ROOT: %PZ_ROOT%
+
 :: decompile game jar
 if exist %output_base%\current_version (
     echo a decompiled version already exists, please remove it before proceeding
