@@ -26,8 +26,10 @@ seq:
     type: s4
   - id: noise_duration
     type: s4
+    if: world_version >= 180
   - id: noise_start_time
     type: f4
+    if: world_version >= 180
   - id: extra_damage
     type: f4
   - id: remote_control_id

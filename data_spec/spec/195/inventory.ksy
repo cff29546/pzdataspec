@@ -37,7 +37,11 @@ types:
         type: u4
     seq:
       - id: identical
-        type: s4
+        type:
+          switch-on: world_version >= 149
+          cases:
+            true: u4
+            false: u2
       - id: item
         type: sized_blob(world_version)
       - id: duplicate_ids
@@ -96,7 +100,7 @@ types:
         type: u1
         if: (flags & 0x04) != 0
       - id: visual
-        type: visual::item_visual
+        type: visual::item_visual(world_version)
         if: (flags & 0x08) != 0
       - id: custom_color
         type: common::color_rgba
@@ -187,42 +191,16 @@ types:
       - id: world_scale
         type: f4
         if: (flags & 0x01000000) != 0
-      - id: texture_name
-        type: common::string_utf
-        if: (flags & 0x10000000) != 0
-      - id: model_index
-        type: u4
-        if: (flags & 0x20000000) != 0
-      - id: world_rotation
-        type: world_rotation(world_version, world_z_rotation_legacy)
-        if: (flags & 0x40000000) != 0
     instances:
       activated:
         value: (flags & 0x00000002) != 0
       custom_name:
         value: (flags & 0x00000040) != 0
+      tainted_water:
+        value: (flags & 0x00000200) != 0
       favorite:
         value: (flags & 0x00004000) != 0
       infected:
         value: (flags & 0x00010000) != 0
       initialised:
         value: (flags & 0x02000000) != 0
-
-  world_rotation:
-    params:
-      - id: world_version
-        type: u4
-      - id: world_z_rotation_legacy
-        type: s4
-    seq:
-      - id: world_y_rotation_legacy
-        type: s4
-      - id: world_x_rotation_legacy
-        type: s4
-    instances:
-      x:
-        value: world_x_rotation_legacy
-      y:
-        value: world_y_rotation_legacy
-      z:
-        value: world_z_rotation_legacy

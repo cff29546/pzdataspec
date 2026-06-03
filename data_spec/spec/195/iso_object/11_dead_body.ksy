@@ -42,9 +42,9 @@ seq:
     type:
       switch-on: visual_type
       cases:
-        0: visual::human_visual
+        0: visual::human_visual(world_version)
   - id: visual_legacy
-    type: visual::human_visual
+    type: visual::human_visual(world_version)
     if: world_version < 190
   - id: has_container
     type: u1

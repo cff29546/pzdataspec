@@ -63,13 +63,15 @@ seq:
     type: s4
   - id: num_spawned_rooms
     type: u1
+    if: world_version >= 160
   - id: spawned_rooms
     type: s4
     repeat: expr
     repeat-expr: num_spawned_rooms
+    if: world_version >= 160
 
   - id: remainder
-    size-eos: true
+    type: common::remaining_bytes(0)
 
 instances:
   max_level:

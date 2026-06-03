@@ -59,16 +59,22 @@ types:
 
   # zombie.iso.objects.IsoWaveSignal.load / save
   iso_wave_signal:
+    params:
+      - id: world_version
+        type: u4
     seq:
       - id: has_device_data
         type: u1
       - id: device_data
-        type: device_data
+        type: device_data(world_version)
         if: has_device_data == 1
 
   # Device data for radios/TVs
   # zombie.radio.devices.DeviceData.load / save
   device_data:
+    params:
+      - id: world_version
+        type: u4
     seq:
       - id: device_name
         type: common::string_utf
@@ -115,13 +121,16 @@ types:
         if: has_presets == 1
       - id: media_index
         type: s2
+        if: world_version >= 181
       - id: media_type
         type: u1
+        if: world_version >= 181
       - id: has_media_item
         type: u1
+        if: world_version >= 181
       - id: media_item
         type: common::string_utf
-        if: has_media_item == 1
+        if: world_version >= 181 and has_media_item == 1
       - id: no_transmit
         type: u1
 

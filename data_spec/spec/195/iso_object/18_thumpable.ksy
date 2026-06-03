@@ -111,9 +111,9 @@ instances:
   can_be_lock_by_padlock:
     value: (bit_header & 68719476736) != 0
   have_fuel:
-    value: (bit_header & 1099511627776) != 0
+    value: world_version >= 183 and (bit_header & 1099511627776) != 0
   light_source_on:
-    value: (bit_header & 2199023255552) != 0
+    value: world_version >= 183 and (bit_header & 2199023255552) != 0
   thump_sound_value:
     value: '(bit_header & 274877906944) != 0 ? raw_thump_sound.value : ""'
   thump_sound:

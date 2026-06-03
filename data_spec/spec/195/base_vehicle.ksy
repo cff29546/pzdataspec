@@ -137,34 +137,39 @@ types:
       # Blood intensity map (id -> byte)
       - id: num_blood
         type: u1
+        if: world_version >= 165
       - id: blood
         type: blood_entry
         repeat: expr
         repeat-expr: num_blood
+        if: world_version >= 165
 
       # Towing information
       - id: has_tow
         type: u1
+        if: world_version >= 174
       - id: vehicle_towing_id
         type: s4
-        if: has_tow == 1
+        if: '(world_version >= 172 and world_version < 174) or (world_version >= 174 and has_tow == 1)'
       - id: tow_attachment_self
         type: common::string_utf
-        if: has_tow == 1
+        if: world_version >= 174 and has_tow == 1
       - id: tow_attachment_other
         type: common::string_utf
-        if: has_tow == 1
-      - id: row_constraint_z_offset
+        if: world_version >= 174 and has_tow == 1
+      - id: tow_constraint_z_offset
         type: f4
-        if: has_tow == 1
+        if: world_version >= 174 and has_tow == 1
 
       # Cruise/Regulator
       - id: regulator_speed
         type: f4
+        if: world_version >= 188
 
       # State flags
       - id: previously_entered
         type: u1
+        if: world_version >= 195
 
       - id: remaining
         type: common::remaining_bytes(0)
@@ -203,7 +208,7 @@ types:
       - id: has_device_data
         type: u1
       - id: device_data
-        type: iso_object_shared::device_data
+        type: iso_object_shared::device_data(world_version)
         if: has_device_data == 1
       # Light/Door/Window
       - id: has_light

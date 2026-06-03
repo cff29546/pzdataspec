@@ -8,9 +8,9 @@ params:
     type: u1
 seq:
   - id: log_yield
-    type: u1
+    type: s1
   - id: damage_raw
-    type: u1
+    type: s1
 instances:
   damage:
     value: damage_raw * 10

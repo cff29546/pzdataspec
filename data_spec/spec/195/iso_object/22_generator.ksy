@@ -21,4 +21,4 @@ seq:
     type: s4
 instances:
   fuel:
-    value: 'raw_fuel > 10.0 ? 10.0 : raw_fuel'
+    value: 'raw_fuel > 100.0 ? 100.0 : raw_fuel'

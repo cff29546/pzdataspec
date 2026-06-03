@@ -10,5 +10,5 @@ params:
     type: u1
 seq:
   - id: television
-    type: iso_object_shared::iso_wave_signal
+    type: iso_object_shared::iso_wave_signal(world_version)
 

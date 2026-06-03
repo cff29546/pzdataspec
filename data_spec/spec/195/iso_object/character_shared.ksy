@@ -25,7 +25,7 @@ types:
         type: survivor_desc(world_version)
         if: has_descriptor == 1
       - id: visual
-        type: visual::human_visual
+        type: visual::human_visual(world_version)
       - id: inventory
         type: inventory::container(world_version)
       - id: asleep

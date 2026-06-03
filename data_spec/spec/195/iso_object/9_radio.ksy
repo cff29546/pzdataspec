@@ -10,4 +10,4 @@ params:
     type: u1
 seq:
   - id: radio
-    type: iso_object_shared::iso_wave_signal
+    type: iso_object_shared::iso_wave_signal(world_version)
