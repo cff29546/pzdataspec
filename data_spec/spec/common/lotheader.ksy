@@ -137,4 +137,3 @@ types:
         type: s4
         repeat: expr
         repeat-expr: num_room_indices
-

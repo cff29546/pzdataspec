@@ -19,6 +19,12 @@ types:
       - id: value
         terminator: 0x0A
 
+  strz_utf:
+    seq:
+      - id: value
+        type: strz
+        encoding: UTF-8
+
   # lotheader, lotpack: little-endian
   # IsoLot.readInt / writeInt (s4le)
   # IsoLot.readShort / writeShort (s2le)

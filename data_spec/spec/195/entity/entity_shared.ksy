@@ -9,17 +9,21 @@ types:
   # zombie.entity.components.crafting.recipe.CraftRecipeData.load / save
   craft_recipe_block:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: len_block
         type: u4
       - id: block
-        type: craft_recipe_data(world_version)
+        type: craft_recipe_data(context, world_version)
         size: len_block
 
   craft_recipe_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -30,7 +34,7 @@ types:
       - id: num_inputs
         type: u4
       - id: inputs
-        type: craft_recipe_input_data(world_version)
+        type: craft_recipe_input_data(context, world_version)
         repeat: expr
         repeat-expr: num_inputs
       - id: has_mod_data
@@ -47,6 +51,8 @@ types:
   # zombie.entity.components.crafting.recipe.CraftRecipeData.CacheData.loadInputs / saveInputs
   craft_recipe_input_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -59,13 +65,13 @@ types:
       - id: energy_consumed
         type: f4
       - id: fluid_sample
-        type: fluid_sample(world_version)
+        type: fluid_sample(context, world_version)
       - id: fluid_consume
-        type: fluid_consume(world_version)
+        type: fluid_consume(context, world_version)
       - id: applied_items
-        type: inventory::compressed_identical_items(world_version)
+        type: inventory::compressed_identical_items(context, world_version)
       - id: most_recent_item
-        type: inventory::compressed_identical_items(world_version)
+        type: inventory::compressed_identical_items(context, world_version)
         repeat: expr
         repeat-expr: 1
       - id: cached_can_consume
@@ -74,6 +80,8 @@ types:
   # zombie.entity.components.fluids.FluidSample.Load / Save
   fluid_sample:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -84,13 +92,15 @@ types:
       - id: num_fluids
         type: u4
       - id: fluids
-        type: fluid_instance(world_version)
+        type: fluid_instance(context, world_version)
         repeat: expr
         repeat-expr: num_fluids
 
   # zombie.entity.components.fluids.FluidInstance.load / save
   fluid_instance:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -111,6 +121,8 @@ types:
   # zombie.entity.components.fluids.FluidConsume.Load / Save
   fluid_consume:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:

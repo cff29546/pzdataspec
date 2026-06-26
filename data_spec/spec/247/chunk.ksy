@@ -14,6 +14,10 @@ doc: |
   Binary layout for a chunk data structure (8x8 for B42)
   Structure derived from IsoChunk.LoadFromDiskOrBufferInternal / IsoChunk.Save and related classes.
 
+params:
+  - id: context
+    type: any
+
 seq:
   - id: debug
     type: u1
@@ -73,7 +77,7 @@ seq:
 
   # Grid squares
   - id: squares
-    type: grid::square(world_version, debug)
+    type: grid::square(context, world_version, debug)
     repeat: expr
     repeat-expr: block_size * block_size
     if: true
@@ -94,7 +98,7 @@ seq:
   - id: num_vehicles
     type: u2
   - id: vehicles
-    type: vehicle_warp(world_version)
+    type: vehicle_warp(context, world_version)
     repeat: expr
     repeat-expr: num_vehicles
 
@@ -148,6 +152,8 @@ types:
 
   vehicle_warp:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -158,4 +164,4 @@ types:
       - id: z
         type: s1
       - id: vehicle
-        type: base_vehicle(world_version)
+        type: base_vehicle(context, world_version)

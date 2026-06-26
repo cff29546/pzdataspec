@@ -85,6 +85,8 @@ meta:
 # zombie.iso.IsoObject.factoryFromFileInput(cell, inputBuffer) -> instances of IsoObject subclasses
 # load(inputBuffer, WorldVersion, IS_DEBUG_SAVE) method on subclass instances
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -97,9 +99,9 @@ seq:
     type:
       switch-on: base_type
       cases:
-        '"IsoObject"': base_object(world_version, debug)
+        '"IsoObject"': base_object(context, world_version, debug)
         '"IsoMovingObject"': iso_object_shared::iso_moving_object
-        '"IsoGameCharacter"': character_shared::game_character_base(world_version, debug, is_zombie)
+        '"IsoGameCharacter"': character_shared::game_character_base(context, world_version, debug, is_zombie)
         _: common::empty
   - id: subclass_object
     if: class_header.serialize == 1 and class_header.class_id != 0
@@ -108,41 +110,41 @@ seq:
       cases:
         # See IsoObject.factoryFromFileInput for class ID mappings
         0: common::unknown(0)
-        1: player(world_version, debug)
-        #2: survivor(world_version, debug)
-        3: zombie_character(world_version, debug)
-        4: pushable_object(world_version, debug)
-        5: wheelie_bin(world_version, debug)
-        6: world_inventory_object(world_version, debug)
-        7: jukebox(world_version, debug)
-        8: curtain(world_version, debug)
-        9: radio(world_version, debug)
-        10: television(world_version, debug)
-        11: dead_body(world_version, debug)
-        12: barbecue(world_version, debug)
-        13: clothing_dryer(world_version, debug)
-        14: clothing_washer(world_version, debug)
-        15: fireplace(world_version, debug)
-        16: stove(world_version, debug)
-        17: door(world_version, debug)
-        18: thumpable(world_version, debug)
-        19: trap(world_version, debug)
-        20: broken_glass(world_version, debug)
-        21: car_battery_charger(world_version, debug)
-        22: generator(world_version, debug)
-        23: compost(world_version, debug)
-        24: mannequin(world_version, debug)
-        25: stone_furnace(world_version, debug)
-        26: window(world_version, debug)
-        27: barricade(world_version, debug)
-        28: tree(world_version, debug)
-        29: light_switch(world_version, debug)
-        30: zombie_giblets(world_version, debug)
-        31: molotov_cocktail(world_version, debug)
-        32: fire(world_version, debug)
-        33: base_vehicle::vehicle(world_version)
-        34: combination_washer_dryer(world_version, debug)
-        35: stacked_washer_dryer(world_version, debug)
+        1: player(context, world_version, debug)
+        #2: survivor(context, world_version, debug)
+        3: zombie_character(context, world_version, debug)
+        4: pushable_object(context, world_version, debug)
+        5: wheelie_bin(context, world_version, debug)
+        6: world_inventory_object(context, world_version, debug)
+        7: jukebox(context, world_version, debug)
+        8: curtain(context, world_version, debug)
+        9: radio(context, world_version, debug)
+        10: television(context, world_version, debug)
+        11: dead_body(context, world_version, debug)
+        12: barbecue(context, world_version, debug)
+        13: clothing_dryer(context, world_version, debug)
+        14: clothing_washer(context, world_version, debug)
+        15: fireplace(context, world_version, debug)
+        16: stove(context, world_version, debug)
+        17: door(context, world_version, debug)
+        18: thumpable(context, world_version, debug)
+        19: trap(context, world_version, debug)
+        20: broken_glass(context, world_version, debug)
+        21: car_battery_charger(context, world_version, debug)
+        22: generator(context, world_version, debug)
+        23: compost(context, world_version, debug)
+        24: mannequin(context, world_version, debug)
+        25: stone_furnace(context, world_version, debug)
+        26: window(context, world_version, debug)
+        27: barricade(context, world_version, debug)
+        28: tree(context, world_version, debug)
+        29: light_switch(context, world_version, debug)
+        30: zombie_giblets(context, world_version, debug)
+        31: molotov_cocktail(context, world_version, debug)
+        32: fire(context, world_version, debug)
+        33: base_vehicle::vehicle(context, world_version)
+        34: combination_washer_dryer(context, world_version, debug)
+        35: stacked_washer_dryer(context, world_version, debug)
         _: common::unknown(class_header.class_id.as<u4>)
 instances:
   class_id:
@@ -174,6 +176,8 @@ types:
   # iso.IsoObject.load / save (no header)
   base_object:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -203,7 +207,7 @@ types:
         type: common::color_rgb
         if: (flags & 8) != 0
       - id: extra_data
-        type: extra_data(world_version, debug)
+        type: extra_data(context, world_version, debug)
         if: (flags & 64) != 0
     instances:
       num_sprites:
@@ -253,6 +257,8 @@ types:
 
   extra_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -275,7 +281,7 @@ types:
         type: s1
         if: (bits_flags & 2) != 0
       - id: containers
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
         repeat: expr
         repeat-expr: num_containers
         if: (bits_flags & 2) != 0

@@ -11,7 +11,7 @@ set count=0
 set fail=0
 for %%f in ("%save_folder%\zpop\zpop_*.bin") do (
     if /i not "%%~nxf"=="zpop_virtual.bin" (
-        python "%~dp0parse.py" zpop "%%f" --param false -nv -o "%output_folder%\%%~nf.txt"
+        python "%~dp0parse.py" zpop "%%f" -p bool:0 -nv -o "%output_folder%\%%~nf.txt"
         if errorlevel 1 (
             echo Failed to parse: %%f
             set /a fail=!fail!+1
@@ -21,7 +21,7 @@ for %%f in ("%save_folder%\zpop\zpop_*.bin") do (
 )
 for %%f in ("%save_folder%\zpop_*.bin") do (
     if /i not "%%~nxf"=="zpop_virtual.bin" (
-        python "%~dp0parse.py" zpop "%%f" --param false -nv -o "%output_folder%\%%~nf.txt"
+        python "%~dp0parse.py" zpop "%%f" -p bool:0 -nv -o "%output_folder%\%%~nf.txt"
         if errorlevel 1 (
             echo Failed to parse: %%f
             set /a fail=!fail!+1

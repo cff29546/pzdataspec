@@ -10,6 +10,8 @@ meta:
 types:
   game_character_base:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -22,12 +24,12 @@ types:
       - id: has_descriptor
         type: u1
       - id: descriptor
-        type: survivor_desc(world_version)
+        type: survivor_desc(context, world_version)
         if: has_descriptor == 1
       - id: visual
         type: visual::human_visual
       - id: inventory
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
       - id: asleep
         type: u1
       - id: force_wake_up_time
@@ -36,7 +38,7 @@ types:
         type: character_stats
         if: is_zombie == 0
       - id: body_damage
-        type: body_damage(world_version)
+        type: body_damage(context, world_version)
         if: is_zombie == 0
       - id: xp
         type: character_xp
@@ -144,6 +146,8 @@ types:
 
   survivor_desc:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -225,11 +229,13 @@ types:
 
   body_damage:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: body_parts
-        type: body_part(world_version)
+        type: body_part(context, world_version)
         repeat: expr
         repeat-expr: 17
         doc: |
@@ -260,11 +266,13 @@ types:
       - id: has_thermoregulator
         type: u1
       - id: thermoregulator
-        type: thermoregulator(world_version)
+        type: thermoregulator(context, world_version)
         if: has_thermoregulator == 1
 
   body_part:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -357,6 +365,8 @@ types:
 
   thermoregulator:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -380,12 +390,14 @@ types:
       - id: num_nodes
         type: s4
       - id: nodes
-        type: thermoregulator_node(world_version)
+        type: thermoregulator_node(context, world_version)
         repeat: expr
         repeat-expr: num_nodes
 
   thermoregulator_node:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -515,6 +527,8 @@ types:
 
   fitness_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:

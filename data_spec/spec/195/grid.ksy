@@ -11,6 +11,8 @@ types:
   # a square coordnate with all levels of grid squares
   square:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -19,7 +21,7 @@ types:
       - id: flags8
         type: common::bit_mask_be(1)
       - id: squares
-        type: grid_square(world_version, debug)
+        type: grid_square(context, world_version, debug)
         repeat: expr
         repeat-expr: num_squares
     instances:
@@ -33,13 +35,15 @@ types:
   # iso.IsoGridSquare.save / load
   grid_square:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
         type: u1
     seq:
       - id: erosion
-        type: erosion::erosion_square(world_version)
+        type: erosion::erosion_square(context, world_version)
       - id: flags
         type: u1
       - id: debug_info_objects
@@ -49,7 +53,7 @@ types:
         type: s2
         if: (flags & 1) != 0 and (flags & 8) != 0
       - id: objects
-        type: object_with_debug(world_version, debug)
+        type: object_with_debug(context, world_version, debug)
         repeat: expr
         repeat-expr: num_objects
       - id: debug_signature
@@ -57,7 +61,7 @@ types:
         contents: CRPS
         if: (flags & 1) != 0 and debug != 0
       - id: extra
-        type: grid_square_extra_data(world_version, debug)
+        type: grid_square_extra_data(context, world_version, debug)
         if: (flags & 64) != 0
     instances:
       num_objects:
@@ -68,6 +72,8 @@ types:
 
   grid_square_extra_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -82,7 +88,7 @@ types:
         type: s2
         if: (flags & 1) != 0
       - id: bodies
-        type: dead_body_with_debug(world_version, debug)
+        type: dead_body_with_debug(context, world_version, debug)
         repeat: expr
         repeat-expr: num_bodies
         if: (flags & 1) != 0
@@ -101,6 +107,8 @@ types:
 
   dead_body_with_debug:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -110,13 +118,15 @@ types:
         type: common::string_utf
         if: debug != 0
       - id: dead_body
-        type: iso_object(world_version, debug)
+        type: iso_object(context, world_version, debug)
         valid:
           # must be IsoDeadBody (11)
           expr: _.class_id == 11
 
   object_with_debug:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -131,10 +141,9 @@ types:
         type: common::string_utf
         if: debug != 0
       - id: object
-        type: iso_object(world_version, debug)
+        type: iso_object(context, world_version, debug)
     instances:
       is_special:
         value: (flags & 2) != 0
       is_world:
         value: (flags & 4) != 0
-

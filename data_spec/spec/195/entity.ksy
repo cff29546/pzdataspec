@@ -32,18 +32,22 @@ types:
   # zombie.entity.GameEntity.saveEntity / loadEntity
   game_entity:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: num_components
         type: u1
       - id: components
-        type: entity_component(world_version)
+        type: entity_component(context, world_version)
         repeat: expr
         repeat-expr: num_components
 
   entity_component:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -52,11 +56,13 @@ types:
       - id: component_id
         type: u2
       - id: data
-        type: component(world_version, component_id)
+        type: component(context, world_version, component_id)
         size: block_len - 2
 
   component:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: component_id
@@ -67,29 +73,29 @@ types:
           switch-on: component_id
           cases:
             0: common::unknown(0)
-            1: attribute_container(world_version)
-            2: fluid_container(world_version)
-            3: sprite_config(world_version)
-            6: lua_component(world_version)
-            7: parts(world_version)
-            8: signals(world_version)
-            9: entity_script_info(world_version)
-            11: ui_config(world_version)
-            12: craft_logic(world_version)
-            13: furnace_logic(world_version)
-            14: test_component(world_version)
-            15: mashing_logic(world_version)
-            16: drying_logic(world_version)
-            17: meta_tag_component(world_version)
-            18: resources(world_version)
-            19: craft_bench(world_version)
-            20: craft_recipe_component(world_version)
-            21: durability(world_version)
-            22: drying_craft_logic(world_version)
-            23: context_menu_config(world_version)
-            24: sprite_overlay_config(world_version)
-            25: craft_bench_sounds(world_version)
-            26: wall_covering_config(world_version)
+            1: attribute_container(context, world_version)
+            2: fluid_container(context, world_version)
+            3: sprite_config(context, world_version)
+            6: lua_component(context, world_version)
+            7: parts(context, world_version)
+            8: signals(context, world_version)
+            9: entity_script_info(context, world_version)
+            11: ui_config(context, world_version)
+            12: craft_logic(context, world_version)
+            13: furnace_logic(context, world_version)
+            14: test_component(context, world_version)
+            15: mashing_logic(context, world_version)
+            16: drying_logic(context, world_version)
+            17: meta_tag_component(context, world_version)
+            18: resources(context, world_version)
+            19: craft_bench(context, world_version)
+            20: craft_recipe_component(context, world_version)
+            21: durability(context, world_version)
+            22: drying_craft_logic(context, world_version)
+            23: context_menu_config(context, world_version)
+            24: sprite_overlay_config(context, world_version)
+            25: craft_bench_sounds(context, world_version)
+            26: wall_covering_config(context, world_version)
             _: common::unknown(component_id.as<u4>)
         doc: |-
           Dynamic zombie.entity.Component, the type is determined by:

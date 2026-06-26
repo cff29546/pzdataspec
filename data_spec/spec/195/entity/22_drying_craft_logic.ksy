@@ -6,12 +6,14 @@ meta:
     - entity_shared
     - 12_craft_logic
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
 seq:
   # Extends CraftLogic, then appends wetness table
   - id: craft_logic
-    type: craft_logic(world_version)
+    type: craft_logic(context, world_version)
   - id: num_wetnesses
     type: u4
   - id: wetnesses

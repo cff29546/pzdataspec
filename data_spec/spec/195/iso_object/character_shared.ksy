@@ -10,6 +10,8 @@ meta:
 types:
   game_character_base:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -22,24 +24,24 @@ types:
       - id: has_descriptor
         type: u1
       - id: descriptor
-        type: survivor_desc(world_version)
+        type: survivor_desc(context, world_version)
         if: has_descriptor == 1
       - id: visual
-        type: visual::human_visual(world_version)
+        type: visual::human_visual(context, world_version)
       - id: inventory
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
       - id: asleep
         type: u1
       - id: force_wake_up_time
         type: f4
       - id: stats
-        type: character_stats(world_version)
+        type: character_stats(context, world_version)
         if: is_zombie == 0
       - id: body_damage
-        type: body_damage(world_version)
+        type: body_damage(context, world_version)
         if: is_zombie == 0
       - id: xp
-        type: character_xp(world_version)
+        type: character_xp(context, world_version)
         if: is_zombie == 0
       - id: left_hand_item_index
         type: s4
@@ -116,6 +118,8 @@ types:
 
   survivor_desc:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -144,7 +148,7 @@ types:
       - id: num_xp_boosts
         type: s4
       - id: xp_boosts
-        type: xp_boost_entry(world_version)
+        type: xp_boost_entry(context, world_version)
         repeat: expr
         repeat-expr: num_xp_boosts
     instances:
@@ -153,16 +157,20 @@ types:
 
   xp_boost_entry:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: perk
-        type: perk_ref(world_version)
+        type: perk_ref(context, world_version)
       - id: level
         type: s4
 
   perk_ref:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -182,6 +190,8 @@ types:
 
   character_stats:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -195,11 +205,13 @@ types:
 
   body_damage:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: body_parts
-        type: body_part(world_version)
+        type: body_part(context, world_version)
         repeat: expr
         repeat-expr: 17
       - id: infection_level
@@ -247,6 +259,8 @@ types:
 
   body_part:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -391,6 +405,8 @@ types:
 
   character_xp:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -405,27 +421,27 @@ types:
       - id: num_xp_entries
         type: s4
       - id: xp_entries
-        type: perk_xp_entry(world_version)
+        type: perk_xp_entry(context, world_version)
         repeat: expr
         repeat-expr: num_xp_entries
       - id: num_legacy_unused_xp_entries
         type: s4
         if: world_version < 162
       - id: legacy_unused_xp_entries
-        type: perk_ref(world_version)
+        type: perk_ref(context, world_version)
         repeat: expr
         repeat-expr: num_legacy_unused_xp_entries
         if: world_version < 162
       - id: num_perk_levels
         type: s4
       - id: perk_levels
-        type: perk_level_entry(world_version)
+        type: perk_level_entry(context, world_version)
         repeat: expr
         repeat-expr: num_perk_levels
       - id: num_multipliers
         type: s4
       - id: multipliers
-        type: perk_multiplier_entry(world_version)
+        type: perk_multiplier_entry(context, world_version)
         repeat: expr
         repeat-expr: num_multipliers
 
@@ -440,31 +456,37 @@ types:
 
   perk_xp_entry:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: perk
-        type: perk_ref(world_version)
+        type: perk_ref(context, world_version)
       - id: xp
         type: f4
 
   perk_level_entry:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: perk
-        type: perk_ref(world_version)
+        type: perk_ref(context, world_version)
       - id: level
         type: s4
 
   perk_multiplier_entry:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: perk
-        type: perk_ref(world_version)
+        type: perk_ref(context, world_version)
       - id: multiplier
         type: f4
       - id: min_level
@@ -501,6 +523,8 @@ types:
 
   fitness_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:

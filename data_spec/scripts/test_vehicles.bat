@@ -11,5 +11,5 @@ for %%I in ("%output_file%") do set "output_dir=%%~dpI"
 if "!output_dir:~-1!"=="\" set "output_dir=!output_dir:~0,-1!"
 
 echo Testing Vehicles DB: %db_file%
-python "%~dp0parse_db.py" base_vehicle "%db_file%" vehicles -d data -a worldversion -o "%output_file%" -D "!output_dir!"
+python "%~dp0parse_db.py" base_vehicle "%db_file%" vehicles -d data -p :{} -p sql:worldversion -o "%output_file%" -D "!output_dir!"
 endlocal

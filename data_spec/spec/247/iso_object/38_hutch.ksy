@@ -6,6 +6,8 @@ meta:
     - ../inventory
     - ../animal
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -18,7 +20,7 @@ seq:
   - id: linked_z
     type: s4
   - id: data
-    type: hutch_data(world_version, debug)
+    type: hutch_data(context, world_version, debug)
     if: is_slave == false
 instances:
   is_slave:
@@ -27,6 +29,8 @@ instances:
 types:
   hutch_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: debug
@@ -54,7 +58,7 @@ types:
     - id: num_animals
       type: u1
     - id: animals
-      type: hutch_animal(world_version)
+      type: hutch_animal(context, world_version)
       repeat: expr
       repeat-expr: num_animals
     - id: hutch_dirt
@@ -64,33 +68,37 @@ types:
     - id: num_nest_boxes
       type: u1
     - id: nest_boxes
-      type: nest_box(world_version)
+      type: nest_box(context, world_version)
       repeat: expr
       repeat-expr: num_nest_boxes
 
   hutch_animal:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: header
         type: common::serialized_class_header
       - id: animal
-        type: animal::animal(world_version)
+        type: animal::animal(context, world_version)
 
   nest_box:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: num_eggs
         type: u1
       - id: eggs
-        type: inventory::sized_blob(world_version)
+        type: inventory::sized_blob(context, world_version)
         repeat: expr
         repeat-expr: num_eggs
       - id: has_animal
         type: u1
       - id: animal
-        type: animal::animal(world_version)
+        type: animal::animal(context, world_version)
         if: has_animal == 1

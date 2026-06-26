@@ -5,6 +5,8 @@ meta:
     - ../../common/common
     - entity_shared
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
 seq:
@@ -21,7 +23,7 @@ seq:
     type: common::string_utf
     if: (header & 4) != 0
   - id: current_recipe
-    type: current_recipe_block(world_version)
+    type: current_recipe_block(context, world_version)
     if: (header & 8) != 0
   - id: barrel_consumed_amount
     type: f4
@@ -29,6 +31,8 @@ seq:
 types:
   current_recipe_block:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -41,4 +45,4 @@ types:
       - id: last_world_age
         type: f8
       - id: craft_data
-        type: entity_shared::craft_recipe_block(world_version)
+        type: entity_shared::craft_recipe_block(context, world_version)

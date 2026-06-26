@@ -14,6 +14,8 @@ doc: |
   Structure derived from vehicles.VehiclesDB2.SQLStore.loadChunk, BaseVehicle.save/load and related classes.
 
 params:
+  - id: context
+    type: any
   - id: world_version
     type: s4
 
@@ -27,13 +29,15 @@ seq:
     type: iso_object_shared::iso_moving_object
     if: class_header.serialize == 1 and class_header.class_id == 33
   - id: vehicle
-    type: vehicle(world_version)
+    type: vehicle(context, world_version)
     if: class_header.serialize == 1 and class_header.class_id == 33
 
 types:
   # vehicles.BaseVehicle.load / save (no header and base moving object)
   vehicle:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: s4
     seq:
@@ -91,7 +95,7 @@ types:
       - id: num_parts
         type: u2
       - id: parts
-        type: vehicle_part(world_version)
+        type: vehicle_part(context, world_version)
         repeat: expr
         repeat-expr: num_parts
 
@@ -138,7 +142,7 @@ types:
       - id: has_current_key
         type: u1
       - id: current_key
-        type: inventory::sized_blob(world_version)
+        type: inventory::sized_blob(context, world_version)
         if: has_current_key == 1
 
       # Blood intensity map (id -> byte)
@@ -182,10 +186,10 @@ types:
         if: world_version >= 212
       - id: animals_data_new
         size: buffer_size + 0
-        type: animals_data(world_version, buffer_size)
+        type: animals_data(context, world_version, buffer_size)
         if: world_version >= 212
       - id: animals_data
-        type: animals_data(world_version, 0)
+        type: animals_data(context, world_version, 0)
         if: world_version < 212
 
       - id: remaining
@@ -194,6 +198,8 @@ types:
   # animals_warpper
   animals_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: buffer_size
@@ -205,7 +211,7 @@ types:
         type: u4
         if: has_animals_data == 1
       - id: animals
-        type: animal::animal(world_version)
+        type: animal::animal(context, world_version)
         repeat: expr
         repeat-expr: num_animals
     instances:
@@ -215,6 +221,8 @@ types:
   # vehicle.VehiclePart.save / load
   vehicle_part:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: s4
     seq:
@@ -228,13 +236,13 @@ types:
       - id: has_item
         type: u1
       - id: item
-        type: inventory::sized_blob(world_version)
+        type: inventory::sized_blob(context, world_version)
         if: has_item == 1
       # Item container
       - id: has_container
         type: u1
       - id: container
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
         if: has_container == 1
       # Mod data (Lua table)
       - id: has_mod_data
@@ -280,7 +288,7 @@ types:
         type: u1
         if: world_version >= 200
       - id: entity
-        type: entity::game_entity(world_version)
+        type: entity::game_entity(context, world_version)
         if: world_version >= 200 and has_entity == 1
 
   # Lua table entries map for blood intensity

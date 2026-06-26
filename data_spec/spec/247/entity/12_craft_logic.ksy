@@ -6,6 +6,8 @@ meta:
     - ../inventory
     - entity_shared
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
 seq:
@@ -30,7 +32,7 @@ seq:
     if: (header & 8) != 0
   # 16: in-progress craft data (list of ByteBlock-framed entries)
   - id: in_progress
-    type: in_progress_list(world_version)
+    type: in_progress_list(context, world_version)
     if: (header & 16) != 0
   # 32: action_anim_override
   - id: action_anim_override
@@ -40,6 +42,8 @@ types:
   # List of in-progress CraftRecipeData blocks
   in_progress_list:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -47,7 +51,7 @@ types:
         type: u4
         if: world_version >= 238
       - id: entries
-        type: entity_shared::craft_recipe_block(world_version)
+        type: entity_shared::craft_recipe_block(context, world_version)
         repeat: expr
         repeat-expr: num_entries
     instances:

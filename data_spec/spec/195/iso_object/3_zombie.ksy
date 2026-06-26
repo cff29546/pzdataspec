@@ -5,6 +5,8 @@ meta:
     - character_shared
 
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug

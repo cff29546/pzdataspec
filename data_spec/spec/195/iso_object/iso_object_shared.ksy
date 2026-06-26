@@ -29,6 +29,8 @@ types:
   # zombie.iso.IsoPushableObject.load / save
   iso_pushable_object:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: is_iso_wheel_bin
@@ -40,7 +42,7 @@ types:
       - id: has_container
         type: u1
       - id: container
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
         if: has_container == 1
 
   # zombie.iso.objects.ClothingDryerLogic.load / save
@@ -60,19 +62,23 @@ types:
   # zombie.iso.objects.IsoWaveSignal.load / save
   iso_wave_signal:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: has_device_data
         type: u1
       - id: device_data
-        type: device_data(world_version)
+        type: device_data(context, world_version)
         if: has_device_data == 1
 
   # Device data for radios/TVs
   # zombie.radio.devices.DeviceData.load / save
   device_data:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:

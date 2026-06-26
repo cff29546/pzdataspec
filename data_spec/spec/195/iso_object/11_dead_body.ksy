@@ -7,6 +7,8 @@ meta:
     - ../visual
     - character_shared
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -30,7 +32,7 @@ seq:
   - id: has_desc
     type: u1
   - id: desc
-    type: character_shared::survivor_desc(world_version)
+    type: character_shared::survivor_desc(context, world_version)
     if: has_desc == 1
   - id: visual_type
     type: u1
@@ -42,14 +44,14 @@ seq:
     type:
       switch-on: visual_type
       cases:
-        0: visual::human_visual(world_version)
+        0: visual::human_visual(context, world_version)
   - id: visual_legacy
-    type: visual::human_visual(world_version)
+    type: visual::human_visual(context, world_version)
     if: world_version < 190
   - id: has_container
     type: u1
   - id: container_data
-    type: container_with_worn_items(world_version)
+    type: container_with_worn_items(context, world_version)
     if: has_container == 1
   - id: death_time
     type: f4
@@ -74,13 +76,15 @@ seq:
 types:
   container_with_worn_items:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: container_id
         type: s4
       - id: container
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
       - id: num_worn_items
         type: u1
       - id: worn_items

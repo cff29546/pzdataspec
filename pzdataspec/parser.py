@@ -45,13 +45,15 @@ class Parser(object):
         self.schema = load_spec(schema_name, version)
         self.schema_args = schema_args
 
-    def parse_data(self, data):
-        if self.schema_args:
-            return self.schema(*self.schema_args, KaitaiStream(BytesIO(data)))
+    def parse_data(self, data, schema_args=None):
+        if schema_args is None:
+            schema_args = self.schema_args
+        if schema_args:
+            return self.schema(*schema_args, KaitaiStream(BytesIO(data)))
         else:
             return self.schema(KaitaiStream(BytesIO(data)))
     
-    def parse_file(self, file_path):
+    def parse_file(self, file_path, schema_args=None):
         with open(file_path, "rb") as f:
             data = f.read()
-        return self.parse_data(data)
+        return self.parse_data(data, schema_args=schema_args)

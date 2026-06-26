@@ -6,6 +6,8 @@ meta:
     - ../inventory
     - ../visual
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -33,7 +35,7 @@ seq:
     type: s4
     if: has_container == 1
   - id: container
-    type: inventory::container(world_version)
+    type: inventory::container(context, world_version)
     if: has_container == 1
   - id: num_worn_items
     type: u1
@@ -50,4 +52,3 @@ types:
         type: common::string_utf
       - id: item_index
         type: s2
-

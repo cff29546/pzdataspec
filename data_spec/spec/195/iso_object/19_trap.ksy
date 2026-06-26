@@ -5,6 +5,8 @@ meta:
     - ../../common/common
     - ../inventory
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -43,7 +45,7 @@ seq:
   - id: has_weapon
     type: u1
   - id: weapon
-    type: inventory::sized_blob(world_version)
+    type: inventory::sized_blob(context, world_version)
     if: has_weapon == 1
 instances:
   explosion_sound:

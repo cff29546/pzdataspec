@@ -5,6 +5,8 @@ meta:
     - ../../common/common
     - attribute_type
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
 seq:

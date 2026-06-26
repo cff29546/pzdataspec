@@ -1,5 +1,6 @@
 import os
 from . import parser
+from .scripts.items import get_items, get_items_type_mapping
 
 TileDef = parser.Parser("tile_def", version='latest')
 Chunk_B41 = parser.Parser('chunk', version=195)
@@ -172,11 +173,11 @@ def load_mod_tile_defs(defs, mod_root, version):
         file_no_map[file_no] = tiledef_path
 
 
-def load_chunk(path, version=None):
+def load_chunk(path, version=None, context=None):
     if version == 41:
-        raw = Chunk_B41.parse_file(path)
+        raw = Chunk_B41.parse_file(path, schema_args=[context])
     else:
-        raw = Chunk.parse_file(path)
+        raw = Chunk.parse_file(path, schema_args=[context])
     return ChunkData(raw)
 
 
@@ -194,17 +195,56 @@ def locatete_world_dict(chunk_path):
     return None
 
 
-def load_world_dict_sprites(path, version=None):
+def load_world_dict(path, version=None):
     if not path:
-        return {}
+        return None
     if version == 41:
-        wd = WorldDict_B41.parse_file(path)
+        return WorldDict_B41.parse_file(path)
     else:
-        wd = WorldDict.parse_file(path)
+        return WorldDict.parse_file(path)
+
+
+def load_world_dict_sprites(path, version=None):
+    wd = load_world_dict(path, version)
+    if not wd:
+        return {}
     sprite_map = {}
     for entry in wd.sprites:
         sprite_map[int(entry.id)] = decode_str_value(entry.name)
     return sprite_map
+
+
+def load_world_dict_items_id_to_name(path, version=None):
+    wd = load_world_dict(path, version)
+    if not wd:
+        return {}
+    modules = [decode_str_value(m).strip() for m in wd.modules]
+    mapping = {}
+    for entry in wd.items:
+        item_id = int(entry.registry_id)
+        name = decode_str_value(entry.name).strip()
+        module_index = int(entry.module_index)
+        if 0 <= module_index < len(modules):
+            module_name = modules[module_index]
+            mapping[item_id] = '.'.join([module_name, name])
+        else:
+            mapping[item_id] = name
+    return mapping
+
+
+def load_item_type_mapping(world_dict_path, scripts_dir, version=None):
+    if not os.path.isdir(scripts_dir):
+        return {}
+    cache_path = os.path.join(scripts_dir, '.item_scripts_parsing_cache.yaml')
+    items = get_items(scripts_dir, show_progress=True, parallel='auto', cache_path=cache_path)
+    item_type_mapping = get_items_type_mapping(items)
+    id_to_name = load_world_dict_items_id_to_name(world_dict_path, version)
+    mapping = {}
+    for item_id, item_name in id_to_name.items():
+        item_type = item_type_mapping.get(item_name)
+        if item_type:
+            mapping[item_id] = item_type
+    return mapping
 
 
 def load_world_dict_items(path, version=None):

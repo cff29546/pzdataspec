@@ -6,6 +6,8 @@ meta:
     - ../inventory
     - ../entity
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -23,13 +25,13 @@ seq:
   - id: offset_y
     type: f4
   - id: item
-    type: inventory::sized_blob(world_version)
+    type: inventory::sized_blob(context, world_version)
   - id: drop_time
     type: f8
   - id: bit_flags
     type: u1
   - id: entity
-    type: entity::game_entity(world_version)
+    type: entity::game_entity(context, world_version)
     if: (bit_flags & 2) != 0
 instances:
   ignore_remove_sandbox:

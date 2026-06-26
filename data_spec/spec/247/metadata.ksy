@@ -62,4 +62,4 @@ types:
       - id: y
         type: s4
       - id: end_game_time
-        type: f4 
+        type: f4

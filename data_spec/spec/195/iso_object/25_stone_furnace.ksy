@@ -5,6 +5,8 @@ meta:
 # Extends IsoObject, calls super.load()
 # Factory name: "StoneFurnace", class ID 25
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug

@@ -6,6 +6,8 @@ meta:
     - ../inventory
     - 2_fluid_container
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
 seq:
@@ -13,12 +15,14 @@ seq:
   - id: num_groups
     type: u4
   - id: groups
-    type: group(world_version)
+    type: group(context, world_version)
     repeat: expr
     repeat-expr: num_groups
 types:
   group:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -27,12 +31,14 @@ types:
       - id: num_resources
         type: u4
       - id: resources
-        type: resource_entry(world_version)
+        type: resource_entry(context, world_version)
         repeat: expr
         repeat-expr: num_resources
   
   resource_entry:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -44,15 +50,17 @@ types:
         type:
           switch-on: outer_type
           cases:
-            1: resource_item(world_version)
-            2: resource_fluid(world_version)
-            3: resource_energy(world_version)
-            _: resource_item(world_version)
+            1: resource_item(context, world_version)
+            2: resource_fluid(context, world_version)
+            3: resource_energy(context, world_version)
+            _: resource_item(context, world_version)
 
   # Base Resource payload (header + core fields + optionals)
   # zombie.entity.components.resources.Resource.load / save
   resource_base:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -76,33 +84,39 @@ types:
 
   resource_item:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: base
-        type: resource_base(world_version)
+        type: resource_base(context, world_version)
       - id: capacity
         type: f4
       - id: items
-        type: inventory::compressed_identical_items(world_version)
+        type: inventory::compressed_identical_items(context, world_version)
 
   resource_fluid:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: base
-        type: resource_base(world_version)
+        type: resource_base(context, world_version)
       - id: fluid
-        type: fluid_container(world_version)
+        type: fluid_container(context, world_version)
 
   resource_energy:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: base
-        type: resource_base(world_version)
+        type: resource_base(context, world_version)
       # Energy.saveEnergy
       - id: has_energy
         type: u1

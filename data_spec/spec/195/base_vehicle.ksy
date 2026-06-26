@@ -12,6 +12,8 @@ doc: |
   Structure derived from vehicles.VehiclesDB2.SQLStore.loadChunk, BaseVehicle.save/load and related classes.
 
 params:
+  - id: context
+    type: any
   - id: world_version
     type: s4
 
@@ -25,13 +27,15 @@ seq:
     type: iso_object_shared::iso_moving_object
     if: class_header.serialize == 1 and class_header.class_id == 33
   - id: vehicle
-    type: vehicle(world_version)
+    type: vehicle(context, world_version)
     if: class_header.serialize == 1 and class_header.class_id == 33
 
 types:
   # vehicles.BaseVehicle.load / save (no header and base moving object)
   vehicle:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: s4
     seq:
@@ -89,7 +93,7 @@ types:
       - id: num_parts
         type: u2
       - id: parts
-        type: vehicle_part(world_version)
+        type: vehicle_part(context, world_version)
         repeat: expr
         repeat-expr: num_parts
 
@@ -131,7 +135,7 @@ types:
       - id: has_current_key
         type: u1
       - id: current_key
-        type: inventory::sized_blob(world_version)
+        type: inventory::sized_blob(context, world_version)
         if: has_current_key == 1
 
       # Blood intensity map (id -> byte)
@@ -177,6 +181,8 @@ types:
   # vehicle.VehiclePart.save / load
   vehicle_part:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: s4
     seq:
@@ -190,13 +196,13 @@ types:
       - id: has_item
         type: u1
       - id: item
-        type: inventory::sized_blob(world_version)
+        type: inventory::sized_blob(context, world_version)
         if: has_item == 1
       # Item container
       - id: has_container
         type: u1
       - id: container
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
         if: has_container == 1
       # Mod data (Lua table)
       - id: has_mod_data
@@ -208,7 +214,7 @@ types:
       - id: has_device_data
         type: u1
       - id: device_data
-        type: iso_object_shared::device_data(world_version)
+        type: iso_object_shared::device_data(context, world_version)
         if: has_device_data == 1
       # Light/Door/Window
       - id: has_light

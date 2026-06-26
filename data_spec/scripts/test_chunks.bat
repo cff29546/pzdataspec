@@ -28,7 +28,7 @@ for %%x in ("%save_folder%\map_*_*.bin") do (
     )
     rem echo Processing Chunk File: !chunk_file! [X: !chunk_x!, Y: !chunk_y!]
     set "output_file=%output_folder%\chunk_!chunk_x!_!chunk_y!.txt"
-    python "%~dp0parse.py" chunk "!chunk_file!" -nv -o "!output_file!"
+    python "%~dp0parse.py" chunk "!chunk_file!" -p :{} -nv -o "!output_file!"
     if errorlevel 1 (
         echo Failed to parse chunk file: !chunk_file!
     )
@@ -44,7 +44,7 @@ for /d %%x in ("%save_folder%\map\*") do (
         set chunk_y=%%~ny
         rem echo Processing Chunk File: !chunk_file! [X: !chunk_x!, Y: !chunk_y!]
         set "output_file=%output_folder%\chunk_!chunk_x!_!chunk_y!.txt"
-        python "%~dp0parse.py" chunk "!chunk_file!" -nv -o "!output_file!"
+        python "%~dp0parse.py" chunk "!chunk_file!" -p :{} -nv -o "!output_file!"
         if errorlevel 1 (
             echo Failed to parse chunk file: !chunk_file!
         )

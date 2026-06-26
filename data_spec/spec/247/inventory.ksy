@@ -6,18 +6,61 @@ meta:
     - entity
     - animal
     - visual
+#    - item/alarmclock
+#    - item/alarmclockclothing
+#    - item/animal
+#    - item/clothing
+#    - item/container
+#    - item/drainable
+#    - item/food
+#    - item/key
+#    - item/literature
+#    - item/map
+#    - item/moveable
+#    - item/normal
+#    - item/radio
+#    - item/weapon
+#    - item/weaponpart
 types:
-  item_warp:
+  item:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
+#      - id: id2type
+#        type: any
     seq:
       - id: registry_id
         type: u2
+#      - id: item_type
+#        type: common::strz_utf
+#        size: 0
+#        process: lookup.lookup_strz(id2type, registry_id)
       - id: save_type
         type: u1
-      - id: item
-        type: item(world_version)
+      - id: base
+        type: item_base(context, world_version)
+#      - id: subclass
+#        type:
+#          switch-on: item_type.value
+#          cases:
+#            '"base:alarmclock"': alarmclock
+#            '"base:alarmclockclothing"': alarmclockclothing
+#            '"base:animal"': animal_item
+#            '"base:clothing"': clothing
+#            '"base:container"': container
+#            '"base:drainable"': drainable
+#            '"base:food"': food
+#            '"base:key"': key
+#            '"base:literature"': literature
+#            '"base:map"': map
+#            '"base:moveable"': moveable
+#            '"base:normal"': normal
+#            '"base:radio"': radio
+#            '"base:weapon"': weapon
+#            '"base:weaponpart"': weaponpart
+#            _: common::empty
       - id: remaining_bytes
         type: common::bytes_eos
       
@@ -25,24 +68,28 @@ types:
   # inventory.InventoryItem.saveWithSize / loadItem (static method)
   sized_blob:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: len_data
         type: u4
       - id: data
-        type: item_warp(world_version)
+        type: item(context, world_version)
         size: len_data
 
   group:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: identical
         type: s4
       - id: item
-        type: sized_blob(world_version)
+        type: sized_blob(context, world_version)
       - id: duplicate_ids
         type: s4
         repeat: expr
@@ -51,13 +98,15 @@ types:
   # inventory.CompressIdenticalItems.save / load
   compressed_identical_items:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: num_item_groups
         type: u2
       - id: item_groups
-        type: group(world_version)
+        type: group(context, world_version)
         repeat: expr
         repeat-expr: num_item_groups
 
@@ -65,6 +114,8 @@ types:
   # inventory.ItemContainer.save / load
   container:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -73,15 +124,17 @@ types:
       - id: explored
         type: u1
       - id: items
-        type: compressed_identical_items(world_version)
+        type: compressed_identical_items(context, world_version)
       - id: has_been_looted
         type: u1
       - id: capacity
         type: s4
 
   # inventory.InventoryItem.load / save (instance method)
-  item:
+  item_base:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -112,11 +165,13 @@ types:
         type: f4
         if: (flags & 0x20) != 0
       - id: extra
-        type: item_extra(world_version)
+        type: item_extra(context, world_version)
         if: (flags & 0x40) != 0
 
   item_extra:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -195,7 +250,7 @@ types:
         type: f4
         if: (flags & 0x01000000) != 0
       - id: entity_components
-        type: entity::game_entity(world_version)
+        type: entity::game_entity(context, world_version)
         if: (flags & 0x04000000) != 0
       - id: animal_tracks
         type: animal::animal_tracks
@@ -210,8 +265,8 @@ types:
         type:
           switch-on: (world_version < 232) and ((flags & 0x00800000) != 0)
           cases:
-            true: world_rotation(world_version, world_z_rotation_legacy)
-            false: world_rotation(world_version, 0)
+            true: world_rotation(context, world_version, world_z_rotation_legacy)
+            false: world_rotation(context, world_version, 0)
         if: (flags & 0x40000000) != 0
     instances:
       activated:
@@ -227,6 +282,8 @@ types:
 
   world_rotation:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: world_z_rotation_legacy

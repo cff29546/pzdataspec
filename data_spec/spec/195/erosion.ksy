@@ -17,6 +17,8 @@ types:
   # zombie.erosion.ErosionData.Square.save / load
   erosion_square:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -35,7 +37,7 @@ types:
         type: u1
         if: (flags & 1) != 0 and (flags & 64) != 0
       - id: regions
-        type: erosion_category(world_version)
+        type: erosion_category(context, world_version)
         repeat: expr
         repeat-expr: num_regions
     instances:
@@ -51,6 +53,8 @@ types:
   # zombie.erosion.categories.ErosionCategory.loadCategoryData
   erosion_category:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -70,14 +74,14 @@ types:
           switch-on: subclass_id
           cases:
             # See ErosionCategory.loadCategoryData for subclass ID mappings
-            0x0000: trees_data(world_version)
-            0x0001: bush_data(world_version)
-            0x0002: plant_data(world_version)
-            0x0003: generic_data(world_version)
-            0x0100: street_cracks_data(world_version)
-            0x0200: wall_vines_data(world_version)
-            0x0201: wall_cracks_data(world_version)
-            0x0300: flowerbed_data(world_version)
+            0x0000: trees_data(context, world_version)
+            0x0001: bush_data(context, world_version)
+            0x0002: plant_data(context, world_version)
+            0x0003: generic_data(context, world_version)
+            0x0100: street_cracks_data(context, world_version)
+            0x0200: wall_vines_data(context, world_version)
+            0x0201: wall_cracks_data(context, world_version)
+            0x0300: flowerbed_data(context, world_version)
             _: empty
     instances:
       stage:

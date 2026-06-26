@@ -5,6 +5,8 @@ meta:
     - ../../common/common
     - ../inventory
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -28,7 +30,7 @@ seq:
     type: f4
     doc: "var5 (offsetY in save)"
   - id: item
-    type: inventory::sized_blob(world_version)
+    type: inventory::sized_blob(context, world_version)
     doc: "InventoryItem.loadItem(var1, var2)"
   - id: drop_time
     type: f8

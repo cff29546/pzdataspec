@@ -6,6 +6,8 @@ meta:
     - character_shared
 
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -72,7 +74,7 @@ seq:
     repeat: expr
     repeat-expr: num_mechanics_items
   - id: fitness
-    type: character_shared::fitness_data(world_version)
+    type: character_shared::fitness_data(context, world_version)
   - id: num_already_read_books
     type: s2
   - id: already_read_books

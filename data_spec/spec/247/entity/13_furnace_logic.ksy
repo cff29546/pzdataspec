@@ -5,6 +5,8 @@ meta:
     - ../../common/common
     - entity_shared
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
 seq:
@@ -33,11 +35,13 @@ seq:
     type: common::string_utf
     if: (header & 64) != 0
   - id: current_recipe
-    type: current_recipe_block(world_version)
+    type: current_recipe_block(context, world_version)
     if: (header & 128) != 0
 types:
   current_recipe_block:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -48,4 +52,4 @@ types:
       - id: elapsed_time
         type: u4
       - id: craft_recipe
-        type: entity_shared::craft_recipe_block(world_version)
+        type: entity_shared::craft_recipe_block(context, world_version)

@@ -7,6 +7,8 @@ types:
   # zombie.core.skinnedmodel.visual.HumanVisual.load / save
   human_visual:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -60,7 +62,7 @@ types:
       - id: num_body_visuals
         type: u1
       - id: body_visuals
-        type: item_visual(world_version)
+        type: item_visual(context, world_version)
         repeat: expr
         repeat-expr: num_body_visuals
       - id: non_attached_hair
@@ -78,6 +80,8 @@ types:
   # zombie.core.skinnedmodel.visual.ItemVisual.load / save
   item_visual:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:

@@ -4,6 +4,8 @@ meta:
   imports:
     - iso_object_shared
 params:
+  - id: context
+    type: any
   - id: world_version
     type: u4
   - id: debug
@@ -11,4 +13,3 @@ params:
 seq:
   - id: television
     type: iso_object_shared::iso_wave_signal
-

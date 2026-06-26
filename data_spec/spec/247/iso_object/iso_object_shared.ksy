@@ -29,6 +29,8 @@ types:
   # zombie.iso.IsoPushableObject.load / save
   iso_pushable_object:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
       - id: is_iso_wheel_bin
@@ -40,7 +42,7 @@ types:
       - id: has_container
         type: u1
       - id: container
-        type: inventory::container(world_version)
+        type: inventory::container(context, world_version)
         if: has_container == 1
 
   # zombie.iso.objects.ClothingDryerLogic.load / save

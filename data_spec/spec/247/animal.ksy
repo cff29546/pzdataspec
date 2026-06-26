@@ -7,6 +7,8 @@ types:
   # characters.animal.IsoAnimal.save / load
   animal:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: s4
       # the debug param is unused in animal load/save methods

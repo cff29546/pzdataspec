@@ -5,8 +5,10 @@ meta:
     - ../common/common
     - visual
 types:
-  item_warp:
+  item:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -14,25 +16,29 @@ types:
         type: u2
       - id: save_type
         type: u1
-      - id: item
-        type: item(world_version)
+      - id: base
+        type: item_base(context, world_version)
       - id: remaining_bytes
         type: common::bytes_eos      
 
   # inventory.InventoryItem.saveWithSize / loadItem (static method)
   sized_blob:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: len_data
         type: u4
       - id: data
-        type: item_warp(world_version)
+        type: item(context, world_version)
         size: len_data
 
   group:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -43,7 +49,7 @@ types:
             true: u4
             false: u2
       - id: item
-        type: sized_blob(world_version)
+        type: sized_blob(context, world_version)
       - id: duplicate_ids
         type: s4
         repeat: expr
@@ -52,13 +58,15 @@ types:
   # inventory.CompressIdenticalItems.save / load
   compressed_identical_items:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
       - id: num_item_groups
         type: u2
       - id: item_groups
-        type: group(world_version)
+        type: group(context, world_version)
         repeat: expr
         repeat-expr: num_item_groups
 
@@ -66,6 +74,8 @@ types:
   # inventory.ItemContainer.save / load
   container:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -74,15 +84,17 @@ types:
       - id: explored
         type: u1
       - id: items
-        type: compressed_identical_items(world_version)
+        type: compressed_identical_items(context, world_version)
       - id: has_been_looted
         type: u1
       - id: capacity
         type: s4
 
   # inventory.InventoryItem.load / save (instance method)
-  item:
+  item_base:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:
@@ -100,7 +112,7 @@ types:
         type: u1
         if: (flags & 0x04) != 0
       - id: visual
-        type: visual::item_visual(world_version)
+        type: visual::item_visual(context, world_version)
         if: (flags & 0x08) != 0
       - id: custom_color
         type: common::color_rgba
@@ -109,11 +121,13 @@ types:
         type: f4
         if: (flags & 0x20) != 0
       - id: extra
-        type: item_extra(world_version)
+        type: item_extra(context, world_version)
         if: (flags & 0x40) != 0
 
   item_extra:
     params:
+      - id: context
+        type: any
       - id: world_version
         type: u4
     seq:

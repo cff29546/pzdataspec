@@ -5,6 +5,7 @@ import builtins
 import importlib
 import json
 import yaml
+import inspect
 from kaitaistruct import KaitaiStream, BytesIO
 from kaitaistruct import KaitaiStruct
 from kaitaistruct import __version__ as ks_version
@@ -52,10 +53,16 @@ def display(field, value, indent=0):
         output.append(f"{prefix}{field}: {data_type}:{value}")
     return output
 
+def parameters_keys(instance):
+    parameters = list(inspect.signature(instance.__class__.__init__).parameters.keys())[1:]  # Skip 'self'
+    param_keys = set([key for key in parameters if not key.startswith('_')])
+    return param_keys
+
 def brief(data):
     output = []
+    param_keys = parameters_keys(data)
     for field in dir(data):
-        if field.startswith('_'):
+        if field.startswith('_') or field in param_keys:
             continue
         value = getattr(data, field)
         if callable(value):
@@ -84,8 +91,9 @@ def detail(data, indent=0, field='', output=None):
         output.extend(display_dict(ktable, indent + 4))
         return output
     if isinstance(data, KaitaiStruct):
+        param_keys = parameters_keys(data)
         for key in dir(data):
-            if key.startswith('_'):
+            if key.startswith('_') or key in param_keys:
                 continue
             value = getattr(data, key)
             if callable(value):
@@ -152,45 +160,30 @@ def load_data(file_path):
         with open(file_path, 'rb') as f:
             return f.read()
 
-
-def resolve_type(type_str):
-    # type can be native function like int, float, str, etc.
-    # or a custom function which needs to be imported e.g. pkg.func
+DEFAULT_TYPE_FUNC = {
+    'int': int,
+    'float': float,
+    'str': str,
+    'bool': lambda x: x.lower() in ('true', '1', 'yes'),
+    'eval': eval,
+    '': eval,
+    'load_data': load_data,
+}
+def resolve_type(type_str, type_func=None):
     type_name = type_str.strip()
-    if not type_name:
-        return None
-
-    builtin_type = getattr(builtins, type_name, None)
-    if callable(builtin_type):
-        return builtin_type
-    
-    if type_name in globals():
-        global_type = globals()[type_name]
-        if callable(global_type):
-            return global_type
-
-    if '.' not in type_name:
-        return None
-
-    module_name, _, attr_name = type_name.rpartition('.')
-    if not module_name or not attr_name:
-        return None
-
-    try:
-        module = importlib.import_module(module_name)
-        type_func = getattr(module, attr_name)
-    except (ImportError, AttributeError):
-        return None
-
-    return type_func if callable(type_func) else None
+    if type_func and type_str in type_func:
+        return type_func[type_str]
+    if type_name in DEFAULT_TYPE_FUNC:
+        return DEFAULT_TYPE_FUNC[type_name]
+    return None
 
 
-def parse_param(token):
+def parse_param(token, type_func=None):
     token = token.strip()
     if ':' in token:
         type_str, value_str = token.split(':', 1)
         value_str = value_str.strip()
-        type_func = resolve_type(type_str)
+        type_func = resolve_type(type_str, type_func)
         if type_func is None:
             raise ValueError(f"Unsupported parameter type: {type_str}")
         return type_func(value_str)
