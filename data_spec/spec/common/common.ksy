@@ -140,8 +140,7 @@ types:
   bytes_eos:
     seq:
       - id: data
-        type: u1
-        repeat: eos
+        size-eos: true
     instances:
       size:
         value: data.size
@@ -229,9 +228,25 @@ types:
     seq:
       - id: data
         type: data_eos
+      - id: size
+        size: 0
+        process: copy_data.u4le(data.data.size)
+        type:
+          switch-on: expected_size >= 0
+          cases:
+            true: remaining_bytes_size_check(expected_size)
+            false: empty
+
+  remaining_bytes_size_check:
+    params:
+      - id: expected
+        type: u4
+    seq:
+      - id: value
+        type: u4le
         valid:
-          expr: expected_size < 0 or _.data.size == expected_size
-  
+          expr: _ == expected
+
   data_eos:
     seq:
       - id: data

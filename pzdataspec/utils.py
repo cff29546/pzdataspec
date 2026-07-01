@@ -1,6 +1,6 @@
 import os
 from . import parser
-from .scripts.items import get_items, get_items_type_mapping
+from .scripts.items import get_items, get_items_name2type
 
 TileDef = parser.Parser("tile_def", version='latest')
 Chunk_B41 = parser.Parser('chunk', version=195)
@@ -182,7 +182,13 @@ def load_chunk(path, version=None, context=None):
 
 
 def locatete_world_dict(chunk_path):
-    dir_path = os.path.dirname(chunk_path)
+    dir_path = ''
+    if os.path.isfile(chunk_path):
+        dir_path = os.path.dirname(chunk_path)
+    elif os.path.isdir(chunk_path):
+        dir_path = chunk_path
+    else:
+        return None
     world_dict_path = os.path.join(dir_path, 'WorldDictionary.bin')
     if os.path.isfile(world_dict_path):
         return os.path.normpath(world_dict_path)
@@ -204,8 +210,10 @@ def load_world_dict(path, version=None):
         return WorldDict.parse_file(path)
 
 
-def load_world_dict_sprites(path, version=None):
-    wd = load_world_dict(path, version)
+def load_world_dict_sprites(path_or_wd, version=None):
+    wd = path_or_wd
+    if isinstance(path_or_wd, str):
+        wd = load_world_dict(path_or_wd, version)
     if not wd:
         return {}
     sprite_map = {}
@@ -214,61 +222,67 @@ def load_world_dict_sprites(path, version=None):
     return sprite_map
 
 
-def load_world_dict_items_id_to_name(path, version=None):
-    wd = load_world_dict(path, version)
+def load_world_dict_item_id2name(path_or_wd, version=None):
+    wd = path_or_wd
+    if isinstance(path_or_wd, str):
+        wd = load_world_dict(path_or_wd, version)
     if not wd:
         return {}
     modules = [decode_str_value(m).strip() for m in wd.modules]
-    mapping = {}
+    id2name = {}
     for entry in wd.items:
         item_id = int(entry.registry_id)
         name = decode_str_value(entry.name).strip()
         module_index = int(entry.module_index)
         if 0 <= module_index < len(modules):
             module_name = modules[module_index]
-            mapping[item_id] = '.'.join([module_name, name])
+            id2name[item_id] = '.'.join([module_name, name])
         else:
-            mapping[item_id] = name
-    return mapping
-
-
-def load_item_type_mapping(world_dict_path, scripts_dir, version=None):
+            id2name[item_id] = name
+    return id2name
+    
+def load_script_item_name2type(scripts_dir):
     if not os.path.isdir(scripts_dir):
         return {}
-    cache_path = os.path.join(scripts_dir, '.item_scripts_parsing_cache.yaml')
-    items = get_items(scripts_dir, show_progress=True, parallel='auto', cache_path=cache_path)
-    item_type_mapping = get_items_type_mapping(items)
-    id_to_name = load_world_dict_items_id_to_name(world_dict_path, version)
+    items = get_items(scripts_dir, show_progress=True, parallel='auto', cache_path=True)
+    name2type = get_items_name2type(items)
+    return name2type
+
+
+def load_world_dict_item_id2type(world_dict, scripts_dir, version=None):
+    wd = world_dict
+    if isinstance(world_dict, str):
+        wd = load_world_dict(world_dict, version)
+    name2type = load_script_item_name2type(scripts_dir)
+    id_to_name = load_world_dict_item_id2name(wd, version)
     mapping = {}
     for item_id, item_name in id_to_name.items():
-        item_type = item_type_mapping.get(item_name)
+        item_type = name2type.get(item_name)
         if item_type:
             mapping[item_id] = item_type
     return mapping
 
 
-def load_world_dict_items(path, version=None):
-    if not path:
+def build_context(save_path, pz_root, version=None):
+    world_dict_path = locatete_world_dict(save_path)
+    scripts_dir = os.path.join(pz_root, 'media', 'scripts')
+    if not os.path.isfile(world_dict_path) or not os.path.isdir(scripts_dir):
         return {}
-    if version == 41:
-        wd = WorldDict_B41.parse_file(path)
-    else:
-        wd = WorldDict.parse_file(path)
-    item_map = {}
-    modules = [decode_str_value(m).strip() for m in getattr(wd, 'modules', [])]
-    for entry in getattr(wd, 'items', []):
-        item_id = int(entry.registry_id)
-        item_name = decode_str_value(entry.name).strip()
-        module_index = int(entry.module_index)
+    wd = load_world_dict(world_dict_path, version)
+    id2name = load_world_dict_item_id2name(wd, version)
+    name2type = load_script_item_name2type(scripts_dir)
+    id2type = {}
+    for item_id, item_name in id2name.items():
+        item_type = name2type.get(item_name)
+        if item_type:
+            id2type[item_id] = item_type
+    context = {
+        'item_name_to_type': name2type,
+        'item_id_to_name': id2name,
+        'item_id_to_type': id2type,
+    }
+    return context
 
-        # Matches DictionaryInfo.load(): fullType = moduleName + "." + name
-        if 0 <= module_index < len(modules):
-            module_name = modules[module_index]
-            item_map[item_id] = '.'.join([module_name, item_name])
-        else:
-            item_map[item_id] = item_name
-
-    return item_map
 
 class ChunkData(object):
     """

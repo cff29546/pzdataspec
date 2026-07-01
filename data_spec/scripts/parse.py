@@ -193,12 +193,48 @@ def parse_param(token, type_func=None):
         else:
             return token
 
+def collect_dump_fields(root, field_name=None, type_name=None):
+    fields = []
+    if isinstance(root, KaitaiStruct):
+        for field in dir(root):
+            if field.startswith('_'):
+                continue
+            value = getattr(root, field)
+            if isinstance(value, bytes):
+                if not type_name or type(root).__name__ == type_name:
+                    if field == field_name:
+                        fields.append((field, value))
+            if isinstance(value, KaitaiStruct) or isinstance(value, list):
+                # Recursively check nested KaitaiStructs
+                fields.extend(collect_dump_fields(value, field_name, type_name))
+    elif isinstance(root, list):
+        for item in root:
+            fields.extend(collect_dump_fields(item, field_name, type_name))
+    return fields
+
+
+def dump_data(dumps, output_path):
+    output_dir = os.path.dirname(output_path)
+    base_name = os.path.basename(output_path)
+    dump_name, ext = os.path.splitext(base_name)
+    if os.path.isdir(output_path):
+        output_dir = output_path
+        dump_name = 'dump'
+        ext = '.bin'
+    os.makedirs(output_dir, exist_ok=True)
+    for i, (field, data) in enumerate(dumps):
+        dump_file_name = f"{dump_name}.{field}.{i}{ext}"
+        dump_file_path = os.path.join(output_dir, dump_file_name)
+        with open(dump_file_path, 'wb') as f:
+            f.write(data)
+        print(f"Dumped field '{field}' to {dump_file_path}")
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description="Parse binary files using a Kaitai Struct schema and output results in a human-readable format.")
     parser.add_argument('-o', '--output', type=str, help='Output file to write results to', default=None)
     parser.add_argument('-d', '--dump-field', type=str, default=None, help='Field to dump binary data from')
+    parser.add_argument('-D', '--dump-type', type=str, default=None, help='Kaitai type to dump binary data')
     parser.add_argument('-do', '--dump-output', type=str, default='output/dump.bin', help='Output path for dumped binary data')
     parser.add_argument('-nv', '--no-verbose', action='store_true', help='Disable verbose output')
     parser.add_argument('-l', '--lib-path', type=str, default=None, help='Path to the generated parser library')
@@ -229,11 +265,9 @@ if __name__ == '__main__':
             func = globals().get('print_' + args.schema)
             if func is None:
                 func = detail if args.output else brief
-            if args.dump_field and hasattr(d, args.dump_field):
-                bin_data = getattr(d, args.dump_field)
-                if isinstance(bin_data, bytes):
-                    dump_data(bin_data, args.dump_output)
-                    print(f"Dumped field '{args.dump_field}' to {args.dump_output}")
+            dumps = collect_dump_fields(d, args.dump_field, args.dump_type)
+            if dumps:
+                dump_data(dumps, args.dump_output)
             output_lines = func(d)
             output.extend(output_lines + [''])
 

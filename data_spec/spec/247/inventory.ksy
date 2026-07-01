@@ -6,21 +6,18 @@ meta:
     - entity
     - animal
     - visual
-#    - item/alarmclock
-#    - item/alarmclockclothing
-#    - item/animal
-#    - item/clothing
-#    - item/container
-#    - item/drainable
-#    - item/food
-#    - item/key
-#    - item/literature
-#    - item/map
-#    - item/moveable
-#    - item/normal
-#    - item/radio
-#    - item/weapon
-#    - item/weaponpart
+    - item/alarm_clock
+    - item/alarm_clock_clothing
+    - item/animal
+    - item/clothing
+    - item/container
+    - item/food
+    - item/hand_weapon
+    - item/key
+    - item/literature
+    - item/map
+    - item/moveable
+    - item/radio
 types:
   item:
     params:
@@ -28,42 +25,58 @@ types:
         type: any
       - id: world_version
         type: u4
-#      - id: id2type
-#        type: any
     seq:
       - id: registry_id
         type: u2
-#      - id: item_type
-#        type: common::strz_utf
-#        size: 0
-#        process: lookup.lookup_strz(id2type, registry_id)
+      - id: item_type
+        type: common::strz_utf
+        size: 0
+        process: context.lookup_strz(context, "item_id_to_type", registry_id)
+      - id: item_name
+        type: common::strz_utf
+        size: 0
+        process: context.lookup_strz(context, "item_id_to_name", registry_id)
       - id: save_type
         type: u1
       - id: base
         type: item_base(context, world_version)
-#      - id: subclass
-#        type:
-#          switch-on: item_type.value
-#          cases:
-#            '"base:alarmclock"': alarmclock
-#            '"base:alarmclockclothing"': alarmclockclothing
-#            '"base:animal"': animal_item
-#            '"base:clothing"': clothing
-#            '"base:container"': container
-#            '"base:drainable"': drainable
-#            '"base:food"': food
-#            '"base:key"': key
-#            '"base:literature"': literature
-#            '"base:map"': map
-#            '"base:moveable"': moveable
-#            '"base:normal"': normal
-#            '"base:radio"': radio
-#            '"base:weapon"': weapon
-#            '"base:weaponpart"': weaponpart
-#            _: common::empty
-      - id: remaining_bytes
+      - id: subclass
+        type:
+          switch-on: item_type.value
+          cases:
+            '"base:alarmclock"': item_alarm_clock(context, world_version)
+            '"base:alarmclockclothing"': item_alarm_clock_clothing(context, world_version)
+            '"base:animal"': item_animal(context, world_version)
+            '"base:clothing"': item_clothing(context, world_version)
+            '"base:container"': item_container(context, world_version)
+            '"base:normal"': common::empty
+            '"base:drainable"': common::empty
+            '"base:food"': item_food(context, world_version)
+            '"base:weapon"': item_hand_weapon(context, world_version)
+            '"base:key"': item_key(context, world_version)
+            '"base:keyring"': common::empty
+            '"base:literature"': item_literature(context, world_version)
+            '"base:map"': item_map(context, world_version)
+            '"base:moveable"': item_moveable(context, world_version)
+            '"base:radio"': item_radio(context, world_version)
+            '"base:weaponpart"': common::empty
+            _: common::empty
+
+  # for debugging purposes, to dump the remaining bytes of an item
+  sized_item:
+    params:
+      - id: context
+        type: any
+      - id: world_version
+        type: u4
+    seq:
+      - id: item
+        type: item(context, world_version)
+      - id: remaining
         type: common::bytes_eos
-      
+      - id: nonzero
+        size: 0
+        if: remaining.size > 0
 
   # inventory.InventoryItem.saveWithSize / loadItem (static method)
   sized_blob:

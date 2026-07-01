@@ -15,6 +15,9 @@ rem chunk files path pattern:
 rem for old versions: %save_folder%\map_{x}_{y}.bin
 rem for new versions: %save_folder%\map\{x}\{y}.bin
 
+set context=:{}
+if exist "%save_folder%\.context.yaml" set context=load_data:%save_folder%\.context.yaml
+
 set chunk_found=0
 rem skip old version for now
 rem goto :new_version
@@ -28,7 +31,7 @@ for %%x in ("%save_folder%\map_*_*.bin") do (
     )
     rem echo Processing Chunk File: !chunk_file! [X: !chunk_x!, Y: !chunk_y!]
     set "output_file=%output_folder%\chunk_!chunk_x!_!chunk_y!.txt"
-    python "%~dp0parse.py" chunk "!chunk_file!" -p :{} -nv -o "!output_file!"
+    python "%~dp0parse.py" chunk "!chunk_file!" -p !context! -nv -o "!output_file!"
     if errorlevel 1 (
         echo Failed to parse chunk file: !chunk_file!
     )
@@ -44,7 +47,7 @@ for /d %%x in ("%save_folder%\map\*") do (
         set chunk_y=%%~ny
         rem echo Processing Chunk File: !chunk_file! [X: !chunk_x!, Y: !chunk_y!]
         set "output_file=%output_folder%\chunk_!chunk_x!_!chunk_y!.txt"
-        python "%~dp0parse.py" chunk "!chunk_file!" -p :{} -nv -o "!output_file!"
+        python "%~dp0parse.py" chunk "!chunk_file!" -p !context! -nv -o "!output_file!"
         if errorlevel 1 (
             echo Failed to parse chunk file: !chunk_file!
         )

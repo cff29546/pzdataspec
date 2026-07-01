@@ -6,11 +6,10 @@ import sys
 RELEASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'output', 'release'))
 sys.path.append(RELEASE_DIR)
 
-from pzdataspec.scripts.items import get_items, get_items_type_mapping
+from pzdataspec.scripts.items import get_items, get_items_name2type
 from pzdataspec.utils import (
     load_conf,
-    load_item_type_mapping,
-    load_world_dict_items_id_to_name,
+    build_context,
     locatete_world_dict,
 )
 
@@ -103,23 +102,18 @@ def main():
     args = parser_.parse_args()
 
     conf = load_conf(args.conf) if args.conf else {}
+    pz_root = conf.get('PZ_ROOT', None)
 
     world_dict_path = args.world_dict or resolve_world_dict(args.input, conf)
-    scripts_dir = resolve_scripts_dir(args.scripts_dir, conf)
+    save_root = os.path.dirname(world_dict_path) if world_dict_path else None
     version = pick_version(args.version)
 
-    if not world_dict_path or not os.path.isfile(world_dict_path):
-        print('WorldDictionary.bin not found. Use --world-dict or provide a chunk/world-dict path.')
-        raise SystemExit(1)
-    if not scripts_dir or not os.path.isdir(scripts_dir):
-        print('scripts directory not found. Use --scripts-dir or set PZ_ROOT/SCRIPTS_DIR in config.')
-        raise SystemExit(1)
-
-    id_to_type = load_item_type_mapping(world_dict_path, scripts_dir, version)
-    id_to_name = load_world_dict_items_id_to_name(world_dict_path, version)
+    context = build_context(save_root, pz_root, version)
+    id_to_type = context['item_id_to_type']
+    id_to_name = context['item_id_to_name']
 
     stats('world dictionary path', world_dict_path)
-    stats('scripts dir', scripts_dir)
+    stats('pz root', pz_root)
     stats('version override', args.version)
     stats('id->name count', len(id_to_name))
     stats('id->type via util count', len(id_to_type))

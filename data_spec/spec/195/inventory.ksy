@@ -4,6 +4,17 @@ meta:
   imports:
     - ../common/common
     - visual
+    - item/alarm_clock
+    - item/alarm_clock_clothing
+    - item/clothing
+    - item/container
+    - item/food
+    - item/hand_weapon
+    - item/key
+    - item/literature
+    - item/map
+    - item/moveable
+    - item/radio
 types:
   item:
     params:
@@ -14,12 +25,38 @@ types:
     seq:
       - id: registry_id
         type: u2
+      - id: item_type
+        type: common::strz_utf
+        size: 0
+        process: context.lookup_strz(context, "item_id_to_type", registry_id)
+      - id: item_name
+        type: common::strz_utf
+        size: 0
+        process: context.lookup_strz(context, "item_id_to_name", registry_id)
       - id: save_type
         type: u1
       - id: base
         type: item_base(context, world_version)
-      - id: remaining_bytes
-        type: common::bytes_eos      
+      - id: subclass
+        type:
+          switch-on: item_type.value
+          cases:
+            '"AlarmClock"': item_alarm_clock(context, world_version)
+            '"AlarmClockClothing"': item_alarm_clock_clothing(context, world_version)
+            '"Clothing"': item_clothing(context, world_version)
+            '"Container"': item_container(context, world_version)
+            '"Normal"': common::empty
+            '"Drainable"': common::empty
+            '"Food"': item_food(context, world_version)
+            '"Weapon"': item_hand_weapon(context, world_version)
+            '"Key"': item_key(context, world_version)
+            '"KeyRing"': common::empty
+            '"Literature"': item_literature(context, world_version)
+            '"Map"': item_map(context, world_version)
+            '"Moveable"': item_moveable(context, world_version)
+            '"Radio"': item_radio(context, world_version)
+            '"WeaponPart"': common::empty
+            _: common::empty
 
   # inventory.InventoryItem.saveWithSize / loadItem (static method)
   sized_blob:

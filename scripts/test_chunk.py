@@ -10,6 +10,7 @@ from pzdataspec.utils import (
     load_tile_defs,
     load_world_dict_sprites,
     locatete_world_dict,
+    build_context,
 )
 
 def peek_chunk_version(path):
@@ -57,11 +58,14 @@ def main():
     world_version = peek_chunk_version(args.file)
     version = 41 if world_version <= 195 else 42
     print(f'Chunk world version: {world_version}, using tile definitions for version {version}')
-    chunk = load_chunk(args.file, version)
+    world_dict_path = locatete_world_dict(args.file)
+    save_root = os.path.dirname(world_dict_path)
+    context = build_context(save_root, pz_root, version)
+    chunk = load_chunk(args.file, version, context)
     print(f'Chunk world version: {chunk.raw.world_version}, using tile definitions for version {version}')
     tile_defs = load_tile_defs(pz_root, mod_root, version)
     stats(tile_defs, 'Tile definitions')
-    world_sprites = load_world_dict_sprites(locatete_world_dict(args.file), version)
+    world_sprites = load_world_dict_sprites(world_dict_path, version)
     stats(world_sprites, 'World dictionary')
     tile_defs.update(world_sprites)
 

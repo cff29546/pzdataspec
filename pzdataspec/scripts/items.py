@@ -45,6 +45,9 @@ def get_items(scripts_dir, show_progress=False, parallel='auto', cache_path=None
     # return dict[item_name] = item_data
     # item_name consists of module name and item name, e.g. "Base.Axe"
     scripts = []
+    if cache_path is True:
+        # use default cache path
+        cache_path = os.path.join(scripts_dir, '.item_scripts_parsing_cache.yaml')
     items, hashes = _load_cache(cache_path)
     if parallel == 'auto':
         num_workers = os.cpu_count()
@@ -80,7 +83,7 @@ def get_items(scripts_dir, show_progress=False, parallel='auto', cache_path=None
         _save_cache(items, hashes, cache_path)
     return items
 
-def get_items_type_mapping(items):
+def get_items_name2type(items):
     # return dict[item_name] = item_type
     mapping = {}
     for item_name, item_data in items.items():
@@ -101,5 +104,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     items = get_items(args.scripts_dir, show_progress=True, parallel=args.parallel, cache_path=args.cache)
-    type_mapping = get_items_type_mapping(items)
+    type_mapping = get_items_name2type(items)
     print(f"Found {len(items)} items")
